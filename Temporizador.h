@@ -15,4 +15,4 @@ typedef struct {
 void init_temporizador(Temporizador* temporizador, void* funcion, Clock* clock);
 
 
-#endif //TEMPORIZADOR_H
+#endif //TEMPORIZADOR

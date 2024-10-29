@@ -9,4 +9,8 @@ add_executable(untitled main.c
         Clock.h
         Temporizador.h
         Temporizador.c
+        PCB.c
+        PCB.h
+        ProcessGenerator.c
+        IComponenteTemporizable.h
 )

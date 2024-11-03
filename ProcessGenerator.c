@@ -17,13 +17,10 @@ typedef struct {
 }ProcessGenerator;
 
 void generar_proceso(ProcessGenerator* process_generator) {
-    printf("Generando proceso\n");
     PCB* pcb = (PCB*)malloc(sizeof(PCB));
     init_pcb(pcb, process_generator -> ultimo_pid);
     process_generator -> ultimo_pid++;
     enqueue(process_generator -> process_queue, pcb);
-    printf("estado actual de la cola de procesos:\n");
-    print_queue(process_generator -> process_queue);
 }
 
 void ejecutar_funcion_temporizador_process_generator(void* self) {
@@ -33,6 +30,7 @@ void ejecutar_funcion_temporizador_process_generator(void* self) {
            generar_proceso(process_generator);
        }
     }
+    print_queue(process_generator -> process_queue);
 }
 
 void init_process_generator(ProcessGenerator* process_generator, ProcessQueue* process_queue, int frecuencia) {

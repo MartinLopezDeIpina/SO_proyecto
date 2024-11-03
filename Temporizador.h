@@ -4,7 +4,7 @@
 
 #ifndef TEMPORIZADOR_H
 #define TEMPORIZADOR_H
-
+#include "IComponenteTemporizable.h"
 
 
 typedef struct {
@@ -12,7 +12,7 @@ typedef struct {
     pthread_t thread;
 } Temporizador;
 
-void init_temporizador(Temporizador* temporizador, void* funcion, Clock* clock);
+void init_temporizador(Temporizador* temporizador, Clock* clock, void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable);
 
 
 #endif //TEMPORIZADOR

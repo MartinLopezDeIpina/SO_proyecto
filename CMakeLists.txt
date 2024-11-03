@@ -13,4 +13,10 @@ add_executable(untitled main.c
         PCB.h
         ProcessGenerator.c
         IComponenteTemporizable.h
+        ProcessGenerator.h
+        ProcessQueue.c
+        Boolean.h
+        ProcessQueue.h
+        Scheduler.c
+        Scheduler.h
 )

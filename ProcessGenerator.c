@@ -6,19 +6,20 @@
 #include "IComponenteTemporizable.h"
 
 typedef struct {
-    IComponenteTemporizable* componente_temporizable;
+    IComponenteTemporizable i_componente_temporizable;
     int frecuencia;
 }ProcessGenerator;
-
-void init_process_generator(ProcessGenerator* process_generator, int frecuencia) {
-    process_generator -> frecuencia = frecuencia;
-}
 
 void generar_proceso(ProcessGenerator* process_generator) {
     printf("Generando proceso\n");
 }
 
-void ejecutar_funcion_temporizador(void* self) {
+void ejecutar_funcion_temporizador_process_generator(void* self) {
     ProcessGenerator* process_generator = (ProcessGenerator*)self;
     generar_proceso(process_generator);
+}
+
+void init_process_generator(ProcessGenerator* process_generator, int frecuencia) {
+    process_generator -> frecuencia = frecuencia;
+    process_generator -> i_componente_temporizable.ejecutar_funcion_temporizador = ejecutar_funcion_temporizador_process_generator;
 }

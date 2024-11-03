@@ -20,5 +20,7 @@ void dequeue(ProcessQueue* queue);
 PCB* get_primero(ProcessQueue* queue);
 PCB* get_ultimo(ProcessQueue* queue);
 
+void print_queue(ProcessQueue* queue);
+
 
 #endif //PROCESSQUEUE_H

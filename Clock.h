@@ -18,5 +18,6 @@ typedef struct{
 void clock_mandar_tick(Clock* clock);
 void bucle_clock(Clock* clock);
 void init_clock(Clock* clock, int frecuencia, int num_temps);
+void sleep_tiempo_espera(int frecuencia);
 
 #endif //RELOJ_H

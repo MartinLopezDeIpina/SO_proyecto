@@ -84,3 +84,12 @@ PCB* get_ultimo(ProcessQueue* queue)
     return queue-> ultimo_nodo -> pcb;
 }
 
+void print_queue(ProcessQueue* queue) {
+    Node* current = queue -> primer_nodo;
+    while (current != NULL) {
+        printf("%d ", current -> pcb -> pid);
+        current = current -> next;
+    }
+    printf("\n");
+}
+

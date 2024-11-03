@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include "Clock.h"
@@ -8,33 +9,40 @@
 #include "ProcessGenerator.h"
 #include "ProcessQueue.h"
 #include "Scheduler.h"
+#include "Machine.h"
 
 
-int main(void) {
+int main(int argc, char* argv[]) {
+
+    int FRECUENCIA_CLOCK = atoi(argv[1]);
+    int FRECUENCIA_GENERADOR_PROCESOS = atoi(argv[2]);
+    int NUM_CPUS = atoi(argv[3]);
+
     ProcessQueue pq;
     init_process_queue(&pq);
 
     Clock clock;
-    init_clock(&clock, 1, 2);
+    init_clock(&clock, FRECUENCIA_CLOCK, 3);
 
     Temporizador temp1;
     Temporizador temp2;
     Temporizador temp3;
 
     ProcessGenerator pg;
-    init_process_generator(&pg, 1);
+    init_process_generator(&pg, &pq, FRECUENCIA_GENERADOR_PROCESOS);
 
-    ProcessGenerator pg2;
-    init_process_generator(&pg2, 1);
+    Machine machine;
+    init_machine(&machine, NUM_CPUS);
 
     Scheduler scheduler;
     init_scheduler(&scheduler);
 
     init_temporizador(&temp1, &clock, &pg, &pg.i_componente_temporizable);
-    sleep(0.01);
-    init_temporizador(&temp2, &clock, &pg2, &pg2.i_componente_temporizable);
-    sleep(0.01);
+    sleep(0.02);
+    init_temporizador(&temp2, &clock, &machine, &machine.i_componente_temporizable);
+    sleep(0.02);
     init_temporizador(&temp3, &clock, &scheduler, &scheduler.i_componente_temporizable);
+
 
     sleep(1000);
     return 0;

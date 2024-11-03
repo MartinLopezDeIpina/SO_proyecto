@@ -19,4 +19,6 @@ add_executable(untitled main.c
         ProcessQueue.h
         Scheduler.c
         Scheduler.h
+        Machine.c
+        Machine.h
 )

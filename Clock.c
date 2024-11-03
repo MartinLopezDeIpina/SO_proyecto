@@ -16,6 +16,11 @@ typedef struct {
 
 } Clock;
 
+void sleep_tiempo_espera(int frecuencia) {
+    float tiempo_espera_segundos = 1.0 / frecuencia;
+    usleep(tiempo_espera_segundos * 1000000);
+}
+
 void clock_mandar_tick(Clock* clock) {
     pthread_mutex_lock(&clock -> mutex);
 
@@ -32,11 +37,11 @@ void* bucle_clock(void* arg) {
     Clock* clock = (Clock*)arg;
 
     // Esperar la frecuencia porque los temporizadores se inician por defecto, para que no se ejecuten dos veces
-    sleep(clock -> frecuencia);
+    sleep_tiempo_espera(clock -> frecuencia);
 
     while (1) {
         clock_mandar_tick(clock);
-        sleep(1 / clock -> frecuencia);
+        sleep_tiempo_espera(clock -> frecuencia);
     }
     return NULL;
 }
@@ -53,3 +58,4 @@ void init_clock(Clock* clock, int frecuencia, int num_temps) {
     pthread_t thread;
     pthread_create(&thread, NULL, bucle_clock, clock);
 }
+

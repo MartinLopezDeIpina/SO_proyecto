@@ -5,6 +5,9 @@
 //
 // Created by martin on 10/25/24.
 //
+
+pthread_mutex_t mutex_temp = PTHREAD_MUTEX_INITIALIZER;
+
 typedef struct {
     void* componente_temporizable;
     IComponenteTemporizable i_componente_temporizable;
@@ -15,16 +18,25 @@ void llamar_componente_temporizable(void* componente_temporizable, IComponenteTe
     i_componente_temporizable -> ejecutar_funcion_temporizador(componente_temporizable);
 }
 
-void* bucle_temporizador(void* args) {
-    Temporizador* temporizador = (Temporizador*)args;
+void bucle_temporizador(Temporizador* temporizador) {
     Clock* clock = temporizador -> clock;
 
-    //printf("Clock address: %p\n", (void*)clock);
-    //printf("clock frecuencia %d\n", clock -> frecuencia);
+    //pthread_mutex_lock(&mutex_temp);
+
+    //printf("Clock address after: %p\n", (void*)clock);
+
+    //printf("clock frecuencia after %d\n", clock -> frecuencia);
+
+    printf("clock frecuencia after %d", clock -> frecuencia);
+
+    printf("     pid hilo: %d\n", pthread_self());
+
+   // pthread_mutex_unlock(&mutex_temp);
 
     pthread_mutex_lock(&clock -> mutex);
 
     while(1) {
+        //printf("algo\n");
 
         int done = clock -> done;
         done++;
@@ -45,6 +57,7 @@ void init_temporizador(Temporizador* temporizador, Clock* clock, void* component
 
     pthread_t thread;
     //printf("Clock address before: %p\n", (void*)clock);
+    //printf("clock frecuencia before %d\n", clock -> frecuencia);
     //printf("clock frecuencia before %d\n", clock -> frecuencia);
     pthread_create(&thread, NULL, bucle_temporizador, temporizador);
     pthread_detach(thread);

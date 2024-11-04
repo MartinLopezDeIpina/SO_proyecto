@@ -13,6 +13,8 @@ typedef struct {
 } Temporizador;
 
 void init_temporizador(Temporizador* temporizador, Clock* clock, void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable);
+void bucle_temporizador(Temporizador* temporizador);
+void llamar_componente_temporizable(void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable);
 
 
 #endif //TEMPORIZADOR

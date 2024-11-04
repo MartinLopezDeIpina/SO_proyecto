@@ -43,7 +43,6 @@ void enqueue(ProcessQueue* queue, PCB* pcb){
       return;
    }
 
-   //todo: mirar si eso está bien con el debugger
    queue -> ultimo_nodo -> next = new_node;
    queue -> ultimo_nodo = new_node;
 }

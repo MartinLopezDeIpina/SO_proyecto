@@ -19,7 +19,7 @@ typedef struct {
 
 /**
  * Debe ejecutar la función del componente frecuencia veces por cada tick de reloj.
- * Por ejemplo, el temporizador del generador de procesos podría tener una frecuencia de 0.5, llamándolo cada 2 ticks de reloj.
+ * Por ejemplo, el temporizador del generador de procesos podría tener una frecuencia de 0.5, llamándolo cada 2 ticks de reloj, creando un proceso cada 2 ticks.
  */
 void llamar_componente_temporizable(Temporizador* temporizador) {
     float* resto_tick = &temporizador -> resto_tick;

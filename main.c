@@ -21,6 +21,8 @@ int main(int argc, char* argv[]) {
     int FRECUENCIA_CLOCK = atoi(argv[1]);
     float FRECUENCIA_GENERADOR_PROCESOS = atof(argv[2]);
     int NUM_CPUS = atoi(argv[3]);
+    int NUM_CORES_CPU = atoi(argv[4]);
+    int NUM_THREADS_CORE = atoi(argv[5]);
 
     Clock clock;
     init_clock(&clock, FRECUENCIA_CLOCK, 3);
@@ -33,7 +35,7 @@ int main(int argc, char* argv[]) {
     init_process_generator(&pg, &pq);
 
     Machine machine;
-    init_machine(&machine, NUM_CPUS);
+    init_machine(&machine, NUM_CPUS, NUM_CORES_CPU, NUM_THREADS_CORE);
 
     Scheduler scheduler;
     init_scheduler(&scheduler);

@@ -10,13 +10,12 @@
 
 typedef struct {
     IComponenteTemporizable i_componente_temporizable;
-    float frecuencia;
-    float resto_tick;
     ProcessQueue* process_queue;
+    int ultimo_pid;
 }ProcessGenerator;
 
 void generar_proceso(ProcessGenerator* process_generator);
 void ejecutar_funcion_temporizador(void* self);
-void init_process_generator(ProcessGenerator* process_generator, ProcessQueue* process_queue, float frecuencia);
+void init_process_generator(ProcessGenerator* process_generator, ProcessQueue* process_queue);
 
 #endif //PROCESSGENERATOR_H

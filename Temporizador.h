@@ -8,13 +8,15 @@
 
 
 typedef struct {
-    void* funcion;
-    pthread_t thread;
+    void* componente_temporizable;
+    IComponenteTemporizable i_componente_temporizable;
+    float frecuencia;
+    float resto_tick;
 } Temporizador;
 
-void init_temporizador(Temporizador* temporizador, void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable, int* int_prueba);
+void init_temporizador(Temporizador* temporizador, void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable, float frecuencia);
 void bucle_temporizador(Temporizador* temporizador);
-void llamar_componente_temporizable(void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable);
+void llamar_componente_temporizable(Temporizador* temporizador);
 
 
 #endif //TEMPORIZADOR

@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     init_process_queue(&pq);
 
     ProcessGenerator pg;
-    init_process_generator(&pg, &pq, FRECUENCIA_GENERADOR_PROCESOS);
+    init_process_generator(&pg, &pq);
 
     Machine machine;
     init_machine(&machine, NUM_CPUS);
@@ -42,13 +42,11 @@ int main(int argc, char* argv[]) {
     Temporizador temp2;
     Temporizador temp3;
 
-    int int_prueba = 1;
-
-    init_temporizador(&temp1, &pg, &pg.i_componente_temporizable, &int_prueba);
+    init_temporizador(&temp1, &pg, &pg.i_componente_temporizable, FRECUENCIA_GENERADOR_PROCESOS);
     //sleep(0.01);
-    init_temporizador(&temp2, &machine, &machine.i_componente_temporizable, &int_prueba);
+    init_temporizador(&temp2, &machine, &machine.i_componente_temporizable, 1);
     //sleep(0.01);
-    init_temporizador(&temp3, &scheduler, &scheduler.i_componente_temporizable, &int_prueba);
+    init_temporizador(&temp3, &scheduler, &scheduler.i_componente_temporizable, 1);
 
     sleep(1000);
     return 0;

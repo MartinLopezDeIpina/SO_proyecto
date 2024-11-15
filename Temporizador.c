@@ -11,7 +11,7 @@ pthread_mutex_t mutex_temp = PTHREAD_MUTEX_INITIALIZER;
 typedef struct {
     void* componente_temporizable;
     IComponenteTemporizable i_componente_temporizable;
-    Clock* clock;
+    int* int_prueba;
 } Temporizador;
 
 void llamar_componente_temporizable(void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable) {
@@ -19,25 +19,11 @@ void llamar_componente_temporizable(void* componente_temporizable, IComponenteTe
 }
 
 void bucle_temporizador(Temporizador* temporizador) {
-    Clock* clock = temporizador -> clock;
-
-    //pthread_mutex_lock(&mutex_temp);
-
-    //printf("Clock address after: %p\n", (void*)clock);
-
-    //printf("clock frecuencia after %d\n", clock -> frecuencia);
-
-    printf("clock frecuencia after %d", clock -> frecuencia);
-
-    printf("     pid hilo: %d\n", pthread_self());
-
-   // pthread_mutex_unlock(&mutex_temp);
+    Clock* clock = get_global_clock();
 
     pthread_mutex_lock(&clock -> mutex);
 
     while(1) {
-        //printf("algo\n");
-
         int done = clock -> done;
         done++;
         clock -> done = done;
@@ -49,16 +35,13 @@ void bucle_temporizador(Temporizador* temporizador) {
     }
 }
 
-void init_temporizador(Temporizador* temporizador, Clock* clock, void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable) {
+void init_temporizador(Temporizador* temporizador, void* componente_temporizable, IComponenteTemporizable* i_componente_temporizable, int* int_prueba) {
 
     temporizador -> componente_temporizable = componente_temporizable;
     temporizador -> i_componente_temporizable = *i_componente_temporizable;
-    temporizador -> clock = clock;
+    temporizador -> int_prueba = int_prueba;
 
     pthread_t thread;
-    //printf("Clock address before: %p\n", (void*)clock);
-    //printf("clock frecuencia before %d\n", clock -> frecuencia);
-    //printf("clock frecuencia before %d\n", clock -> frecuencia);
     pthread_create(&thread, NULL, bucle_temporizador, temporizador);
     pthread_detach(thread);
 }

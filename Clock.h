@@ -15,6 +15,9 @@ typedef struct{
     pthread_cond_t cond2;
 }Clock;
 
+void set_global_clock(Clock* clock);
+Clock* get_global_clock();
+
 void clock_mandar_tick(Clock* clock);
 void bucle_clock(Clock* clock);
 void init_clock(Clock* clock, int frecuencia, int num_temps);

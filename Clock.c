@@ -13,8 +13,17 @@ typedef struct {
     pthread_mutex_t mutex;
     pthread_cond_t cond1;
     pthread_cond_t cond2;
-
 } Clock;
+
+static Clock* global_clock = NULL;
+
+void set_global_clock(Clock* clock) {
+    global_clock = clock;
+}
+
+Clock* get_global_clock() {
+    return global_clock;
+}
 
 void sleep_tiempo_espera(int frecuencia) {
     float tiempo_espera_segundos = 1.0 / frecuencia;

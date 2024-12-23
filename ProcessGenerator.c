@@ -25,7 +25,7 @@ void ejecutar_funcion_temporizador_process_generator(void* self) {
     ProcessGenerator* process_generator = (ProcessGenerator*)self;
 
     generar_proceso(process_generator);
-    print_queue(process_generator -> process_queue);
+    //print_queue(process_generator -> process_queue);
 }
 
 void init_process_generator(ProcessGenerator* process_generator, ProcessQueue* process_queue) {

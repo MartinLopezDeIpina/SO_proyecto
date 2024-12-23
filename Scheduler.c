@@ -11,7 +11,7 @@ typedef struct {
 }Scheduler;
 
 void funcion_scheduler(Scheduler* scheduler) {
-    printf("ejeutando funcion scheduler\n");
+    //printf("ejeutando funcion scheduler\n");
 }
 
 void ejecutar_funcion_temporizador_scheduler(void* self) {

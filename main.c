@@ -9,7 +9,7 @@
 #include "ProcessGenerator.h"
 #include "ProcessQueue.h"
 #include "Scheduler.h"
-#include "Machine.h"
+#include "Machine/Machine.h"
 
 void execute_in_different_thread(void* (*func)(void*), void* arg[]) {
     pthread_t thread;

@@ -45,9 +45,7 @@ int main(int argc, char* argv[]) {
     Temporizador temp3;
 
     init_temporizador(&temp1, &pg, &pg.i_componente_temporizable, FRECUENCIA_GENERADOR_PROCESOS);
-    //sleep(0.01);
     init_temporizador(&temp2, &machine, &machine.i_componente_temporizable, 1);
-    //sleep(0.01);
     init_temporizador(&temp3, &scheduler, &scheduler.i_componente_temporizable, 1);
 
     sleep(1000);

@@ -38,6 +38,20 @@ void init_machine(Machine* machine, int num_CPUs, int num_cores_CPU, int num_thr
 
     for (int i = 0; i < num_CPUs; i++) {
         printf("iniciando cpu %d\n", i);
-        init_CPU(&machine->cpus[i], num_cores_CPU);
+        init_CPU(i,  &machine->cpus[i], num_cores_CPU);
     }
+}
+
+int get_ids_cores_ociosos(Machine* machine, int* ids_cores_ociosos) {
+    int cuenta_total = 0;
+
+    for (int i = 0; i < machine->num_CPUs; i++) {
+        cuenta_total += get_cores_ociosos_cpu(&machine->cpus[i], ids_cores_ociosos, cuenta_total);
+    }
+
+    return cuenta_total;
+}
+
+int get_num_cores_machine(Machine* machine) {
+    return machine->num_CPUs * machine->num_cores_CPU;
 }

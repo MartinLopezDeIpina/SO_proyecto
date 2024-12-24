@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     init_machine(&machine, NUM_CPUS, NUM_CORES_CPU, NUM_THREADS_CORE);
 
     Scheduler scheduler;
-    init_scheduler(&scheduler);
+    init_scheduler(&scheduler, &pq, &machine);
 
     Temporizador temp1;
     Temporizador temp2;

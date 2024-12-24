@@ -5,14 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "Core.h"
-
-
-typedef struct {
-    int id_cpu;
-    int num_cores;
-    Core* cores;
-}CPU;
+#include "CPU.h"
 
 void init_CPU(int id_cpu, CPU* cpu, int num_cores) {
     cpu -> id_cpu = id_cpu;
@@ -32,7 +25,7 @@ void notificar_tick_clock_CPU(CPU* cpu) {
     }
 }
 
-int get_cores_ociosos_cpu(CPU* cpu, int* array_ids, int index_actual) {
+int get_cores_ociosos_CPU(CPU* cpu, int* array_ids, int index_actual) {
    int cont = 0;
    for (int i = 0; i < cpu->num_cores; i++) {
        if (core_esta_ocioso(&cpu -> cores[i]) == TRUE) {
@@ -41,4 +34,14 @@ int get_cores_ociosos_cpu(CPU* cpu, int* array_ids, int index_actual) {
        }
    }
    return cont;
+}
+
+void vaciar_cpus_terminados(CPU* cpu) {
+    for (int i = 0; i < cpu->num_cores; i++) {
+        if (!core_esta_ocioso(&cpu->cores[i])) {
+            if (proceso_core_ha_terminado(&cpu->cores[i]) == TRUE) {
+                vaciar_core(&cpu->cores[i]);
+            }
+        }
+    }
 }

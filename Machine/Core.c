@@ -4,16 +4,7 @@
 
 #include <stdio.h>
 #include <pthread.h>
-#include "../PCB.h"
-#include "../Boolean.h"
-
-typedef struct {
-    int id_core;
-    PCB* current_process;
-    pthread_t thread;
-    pthread_mutex_t mutex;
-    pthread_cond_t condition;
-}Core;
+#include "Core.h"
 
 void ejecutar_instruccion(Core* core) {
     ejecutar_instruccion_proceso(core -> current_process);
@@ -52,7 +43,12 @@ Boolean core_esta_ocioso(Core* core) {
     if (core -> current_process == NULL) {
         return TRUE;
     }
-    return proceso_ejecutando_ultima_instruccion(core -> current_process);
 }
 
+Boolean proceso_core_ha_terminado(Core* core) {
+    return proceso_ha_terminado(core -> current_process);
+}
 
+void vaciar_core(Core* core) {
+    core -> current_process = NULL;
+}

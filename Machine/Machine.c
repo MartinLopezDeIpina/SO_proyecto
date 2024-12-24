@@ -6,15 +6,7 @@
 #include <stdlib.h>
 
 #include "../IComponenteTemporizable.h"
-#include "CPU.h"
-
-typedef struct {
-    IComponenteTemporizable i_componente_temporizable;
-    int num_CPUs;
-    int num_cores_CPU;
-    int num_threads_core;
-    CPU* cpus;
-}Machine;
+#include "Machine.h"
 
 void funcion_machine(Machine* machine) {
     printf("ejeutando funcion machine\n");
@@ -46,7 +38,7 @@ int get_ids_cores_ociosos(Machine* machine, int* ids_cores_ociosos) {
     int cuenta_total = 0;
 
     for (int i = 0; i < machine->num_CPUs; i++) {
-        cuenta_total += get_cores_ociosos_cpu(&machine->cpus[i], ids_cores_ociosos, cuenta_total);
+        cuenta_total += get_cores_ociosos_CPU(&machine->cpus[i], ids_cores_ociosos, cuenta_total);
     }
 
     return cuenta_total;
@@ -54,4 +46,10 @@ int get_ids_cores_ociosos(Machine* machine, int* ids_cores_ociosos) {
 
 int get_num_cores_machine(Machine* machine) {
     return machine->num_CPUs * machine->num_cores_CPU;
+}
+
+void vaciar_cores_terminados(Machine* machine) {
+    for (int i = 0; i < machine->num_CPUs; i++) {
+        vaciar_cpus_terminados(&machine->cpus[i]);
+    }
 }

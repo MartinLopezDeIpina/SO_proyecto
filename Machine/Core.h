@@ -16,6 +16,7 @@ typedef struct {
     pthread_t thread;
     pthread_mutex_t mutex;
     pthread_cond_t condition;
+    pthread_mutex_t mutex_acceso_core;
 }Core;
 
 void init_core(int id_core, Core* core);
@@ -28,6 +29,9 @@ void notificar_tick_clock_core(Core* core);
 
 void vaciar_core(Core* core);
 
+void asignar_proceso_a_core(Core* core, PCB* pcb);
+
+Boolean core_esta_vacio(Core* core);
 Boolean core_esta_ocioso(Core* core);
 Boolean proceso_core_ha_terminado(Core* core);
 

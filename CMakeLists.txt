@@ -25,4 +25,6 @@ add_executable(untitled main.c
         Machine/CPU.h
         Machine/Core.c
         Machine/Core.h
+        utils.c
+        utils.h
 )

@@ -36,12 +36,23 @@ int get_cores_ociosos_CPU(CPU* cpu, int* array_ids, int index_actual) {
    return cont;
 }
 
-void vaciar_cpus_terminados(CPU* cpu) {
+int vaciar_cpus_terminados(CPU* cpu, int* pid_procesos_terminados, int index_actual){
+    int cuenta = 0;
     for (int i = 0; i < cpu->num_cores; i++) {
-        if (!core_esta_ocioso(&cpu->cores[i])) {
-            if (proceso_core_ha_terminado(&cpu->cores[i]) == TRUE) {
-                vaciar_core(&cpu->cores[i]);
-            }
+        if (core_esta_vacio(&cpu->cores[i]) == FALSE && proceso_core_ha_terminado(&cpu->cores[i]) == TRUE) {
+            pid_procesos_terminados[index_actual + cuenta] = cpu->cores[i].current_process -> pid;
+            cuenta++;
+            vaciar_core(&cpu->cores[i]);
+        }
+    }
+    return cuenta;
+}
+
+void asignar_proceso_a_core_CPU(CPU* cpu, int id_core, PCB* pcb) {
+    for (int i = 0; i < cpu->num_cores; i++) {
+        if (cpu->cores[i].id_core == id_core) {
+            asignar_proceso_a_core(&cpu->cores[i], pcb);
+            break;
         }
     }
 }

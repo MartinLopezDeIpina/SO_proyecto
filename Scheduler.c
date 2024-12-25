@@ -15,17 +15,35 @@ typedef struct {
     Machine* machine;
 }Scheduler;
 
+
+void asignar_procesos_a_cores_ociosos(Scheduler* scheduler, int* ids_cores_ociosos, int num_cores_ociosos) {
+    lock_queue_mutex(scheduler->process_queue);
+
+    Node* nodo_actual = get_primero(scheduler->process_queue);
+    int i = 0;
+    while (nodo_actual != NULL && i < num_cores_ociosos) {
+        PCB* pcb = nodo_actual->pcb;
+        if (pcb->estado == LISTO) {
+            asignar_proceso_a_machine(scheduler->machine, ids_cores_ociosos[i], pcb);
+            i++;
+        }
+        nodo_actual = nodo_actual->next;
+    }
+
+    unlock_queue_mutex(scheduler->process_queue);
+}
+
 void funcion_scheduler(Scheduler* scheduler) {
     //printf("ejeutando funcion scheduler\n");
-    vaciar_cores_terminados(scheduler->machine);
+    int* pid_procesos_terminados = (int*)malloc(get_num_cores_machine(scheduler->machine) * sizeof(int));
+    int num_procesos_terminados = vaciar_cores_terminados(scheduler->machine, pid_procesos_terminados);
+
+    eliminar_procesos_terminados(scheduler->process_queue);
 
     int* ids_cores_ociosos = (int*)malloc(get_num_cores_machine(scheduler->machine) * sizeof(int));
     int num_cores_ociosos = get_ids_cores_ociosos(scheduler->machine, ids_cores_ociosos);
 
-    for (int i = 0; i < num_cores_ociosos; i++) {
-        printf("core ocioso: %d\n", ids_cores_ociosos[i]);
-    }
-
+    asignar_procesos_a_cores_ociosos(scheduler, ids_cores_ociosos, num_cores_ociosos);
 }
 
 void ejecutar_funcion_temporizador_scheduler(void* self) {

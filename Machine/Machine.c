@@ -9,7 +9,7 @@
 #include "Machine.h"
 
 void funcion_machine(Machine* machine) {
-    printf("ejeutando funcion machine\n");
+    //printf("ejeutando funcion machine\n");
 
     for (int i = 0; i < machine->num_CPUs; i++) {
         notificar_tick_clock_CPU(&machine->cpus[i]);
@@ -48,8 +48,15 @@ int get_num_cores_machine(Machine* machine) {
     return machine->num_CPUs * machine->num_cores_CPU;
 }
 
-void vaciar_cores_terminados(Machine* machine) {
+int vaciar_cores_terminados(Machine* machine, int* pid_procesos_terminados) {
+    int total_procesos_terminados = 0;
     for (int i = 0; i < machine->num_CPUs; i++) {
-        vaciar_cpus_terminados(&machine->cpus[i]);
+        total_procesos_terminados += vaciar_cpus_terminados(&machine->cpus[i], pid_procesos_terminados, total_procesos_terminados);
     }
+    return total_procesos_terminados;
+}
+
+void asignar_proceso_a_machine(Machine* machine, int id_core, PCB* pcb) {
+    int id_cpu = id_core / machine->num_cores_CPU;
+    asignar_proceso_a_core_CPU(&machine->cpus[id_cpu], id_core, pcb);
 }

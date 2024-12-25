@@ -25,11 +25,15 @@ void ejecutar_funcion_temporizador_process_generator(void* self) {
     ProcessGenerator* process_generator = (ProcessGenerator*)self;
 
     generar_proceso(process_generator);
-    //print_queue(process_generator -> process_queue);
+    print_queue(process_generator -> process_queue);
 }
 
 void init_process_generator(ProcessGenerator* process_generator, ProcessQueue* process_queue) {
     process_generator -> i_componente_temporizable.ejecutar_funcion_temporizador = ejecutar_funcion_temporizador_process_generator;
     process_generator -> process_queue = process_queue;
     process_generator -> ultimo_pid = 0;
+
+    for(int i = 0; i < 4; i++) {
+        generar_proceso(process_generator);
+    }
 }

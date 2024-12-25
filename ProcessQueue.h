@@ -7,18 +7,28 @@
 #include "Boolean.h"
 #include "PCB.h"
 
+typedef struct Node{
+   PCB* pcb;
+   struct Node* next;
+}Node;
+
 typedef struct {
-    PCB* pcb;
-    struct Node* next;
-}ProcessQueue;
+    Node* primer_nodo;
+    Node* ultimo_nodo;
+    pthread_mutex_t mutex;
+} ProcessQueue;
+
 
 Boolean is_empty(ProcessQueue* process_queue);
 void init_process_queue(ProcessQueue* process_queue);
 void enqueue(ProcessQueue* queue, PCB* pcb);
 void dequeue(ProcessQueue* queue);
+void eliminar_procesos_terminados(ProcessQueue* queue);
+void lock_queue_mutex(ProcessQueue* queue);
+void unlock_queue_mutex(ProcessQueue* queue);
 
-PCB* get_primero(ProcessQueue* queue);
-PCB* get_ultimo(ProcessQueue* queue);
+Node* get_primero(ProcessQueue* queue);
+Node* get_ultimo(ProcessQueue* queue);
 
 void print_queue(ProcessQueue* queue);
 

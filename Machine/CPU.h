@@ -18,6 +18,7 @@ typedef struct{
 void init_CPU(int id_cpu, CPU* cpu, int num_cores);
 void notificar_tick_clock_CPU(CPU* cpu);
 int vaciar_cpus_terminados(CPU* cpu, int* pid_procesos_terminados, int index_actual);
+void vaciar_cpus_sin_saldo_suficiente(CPU* cpu);
 int get_cores_ociosos_CPU(CPU* cpu, int* array_ids, int index_actual);
 void asignar_proceso_a_core_CPU(CPU* cpu, int id_core, PCB* pcb);
 

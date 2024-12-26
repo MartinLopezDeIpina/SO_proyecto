@@ -111,6 +111,20 @@ void eliminar_procesos_terminados(ProcessQueue* queue) {
     pthread_mutex_unlock(&queue->mutex);
 }
 
+void incrementar_saldos_fuera_cpu(ProcessQueue* queue) {
+    pthread_mutex_lock(&queue->mutex);
+
+    Node* current = queue->primer_nodo;
+    while (current != NULL) {
+        if(proceso_esta_listo(current->pcb)) {
+            incrementar_saldo(current->pcb, 1);
+        }
+        current = current->next;
+    }
+
+    pthread_mutex_unlock(&queue->mutex);
+}
+
 Node* get_primero(ProcessQueue* queue) {
     if (is_empty(queue)) {
         printf("Queue is empty\n");
@@ -136,7 +150,7 @@ void print_queue(ProcessQueue* queue) {
 
     Node* current = queue->primer_nodo;
     while (current != NULL) {
-        printf("%d ", current->pcb->pid);
+        printf("%d(%d$) ", current->pcb->pid, current->pcb->saldo);
         current = current->next;
     }
     printf("\n");

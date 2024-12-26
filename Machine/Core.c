@@ -38,7 +38,7 @@ void* funcion_core(void* arg) {
         pthread_mutex_lock(&core->mutex);
         pthread_cond_wait(&core->condition, &core->mutex);
 
-        Boolean core_ocioso =core_esta_ocioso(core);
+        Boolean core_ocioso = core_esta_ocioso(core);
         if (core_ocioso == FALSE) {
             ejecutar_instruccion(core);
         }
@@ -101,8 +101,23 @@ Boolean proceso_core_ha_terminado(Core* core) {
     }
 }
 
+Boolean proceso_core_saldo_ejecucion_insuficiente(Core* core) {
+    pthread_mutex_lock(&core->mutex_acceso_core);
+    Boolean saldo_insuficiente = proceso_saldo_ejecucion_insuficiente(core -> current_process);
+    pthread_mutex_unlock(&core->mutex_acceso_core);
+
+    return saldo_insuficiente;
+}
+
 void vaciar_core(Core* core) {
     pthread_mutex_lock(&core->mutex_acceso_core);
+    core -> current_process = NULL;
+    pthread_mutex_unlock(&core->mutex_acceso_core);
+}
+
+void vaciar_core_y_set_estado(Core* core, EstadoProceso estado) {
+    pthread_mutex_lock(&core->mutex_acceso_core);
+    set_estado_proceso(core -> current_process, estado);
     core -> current_process = NULL;
     pthread_mutex_unlock(&core->mutex_acceso_core);
 }

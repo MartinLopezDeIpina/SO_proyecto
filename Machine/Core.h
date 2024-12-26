@@ -28,9 +28,11 @@ void *funcion_core(void* arg);
 void notificar_tick_clock_core(Core* core);
 
 void vaciar_core(Core* core);
+void vaciar_core_y_set_estado(Core* core, EstadoProceso estado);
 
 void asignar_proceso_a_core(Core* core, PCB* pcb);
 
+Boolean proceso_core_saldo_ejecucion_insuficiente(Core* core);
 Boolean core_esta_vacio(Core* core);
 Boolean core_esta_ocioso(Core* core);
 Boolean proceso_core_ha_terminado(Core* core);

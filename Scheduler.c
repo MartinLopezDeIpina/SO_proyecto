@@ -23,7 +23,8 @@ void asignar_procesos_a_cores_ociosos(Scheduler* scheduler, int* ids_cores_ocios
     int i = 0;
     while (nodo_actual != NULL && i < num_cores_ociosos) {
         PCB* pcb = nodo_actual->pcb;
-        if (pcb->estado == LISTO) {
+        if (pcb->estado == LISTO && proceso_saldo_suficiente_para_entrar_core(pcb)) {
+            asignar_saldo_ejecucion(pcb);
             asignar_proceso_a_machine(scheduler->machine, ids_cores_ociosos[i], pcb);
             i++;
         }
@@ -34,9 +35,14 @@ void asignar_procesos_a_cores_ociosos(Scheduler* scheduler, int* ids_cores_ocios
 }
 
 void funcion_scheduler(Scheduler* scheduler) {
-    //printf("ejeutando funcion scheduler\n");
+    printf("ejeutando funcion scheduler\n");
+
+    incrementar_saldos_fuera_cpu(scheduler->process_queue);
+
     int* pid_procesos_terminados = (int*)malloc(get_num_cores_machine(scheduler->machine) * sizeof(int));
     int num_procesos_terminados = vaciar_cores_terminados(scheduler->machine, pid_procesos_terminados);
+
+    vaciar_cores_sin_saldo_suficiente(scheduler->machine);
 
     eliminar_procesos_terminados(scheduler->process_queue);
 

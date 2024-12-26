@@ -9,7 +9,7 @@
 #include "Machine.h"
 
 void funcion_machine(Machine* machine) {
-    //printf("ejeutando funcion machine\n");
+    printf("ejeutando funcion machine\n");
 
     for (int i = 0; i < machine->num_CPUs; i++) {
         notificar_tick_clock_CPU(&machine->cpus[i]);
@@ -54,6 +54,12 @@ int vaciar_cores_terminados(Machine* machine, int* pid_procesos_terminados) {
         total_procesos_terminados += vaciar_cpus_terminados(&machine->cpus[i], pid_procesos_terminados, total_procesos_terminados);
     }
     return total_procesos_terminados;
+}
+
+void vaciar_cores_sin_saldo_suficiente(Machine* machine) {
+    for (int i = 0; i < machine->num_CPUs; i++) {
+        vaciar_cpus_sin_saldo_suficiente(&machine->cpus[i]);
+    }
 }
 
 void asignar_proceso_a_machine(Machine* machine, int id_core, PCB* pcb) {

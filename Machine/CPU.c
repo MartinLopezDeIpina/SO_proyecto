@@ -48,6 +48,14 @@ int vaciar_cpus_terminados(CPU* cpu, int* pid_procesos_terminados, int index_act
     return cuenta;
 }
 
+void vaciar_cpus_sin_saldo_suficiente(CPU* cpu) {
+    for (int i = 0; i < cpu->num_cores; i++) {
+        if (core_esta_vacio(&cpu->cores[i]) == FALSE && proceso_core_saldo_ejecucion_insuficiente(&cpu->cores[i]) == TRUE) {
+            vaciar_core_y_set_estado(&cpu->cores[i], LISTO);
+        }
+    }
+}
+
 void asignar_proceso_a_core_CPU(CPU* cpu, int id_core, PCB* pcb) {
     for (int i = 0; i < cpu->num_cores; i++) {
         if (cpu->cores[i].id_core == id_core) {

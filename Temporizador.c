@@ -59,5 +59,5 @@ void init_temporizador(Temporizador* temporizador, void* componente_temporizable
 
     pthread_t thread;
     pthread_create(&thread, NULL, bucle_temporizador, temporizador);
-    pthread_detach(thread);
+    //pthread_detach(thread);
 }

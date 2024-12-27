@@ -27,6 +27,7 @@ void eliminar_procesos_terminados(ProcessQueue* queue);
 void lock_queue_mutex(ProcessQueue* queue);
 void unlock_queue_mutex(ProcessQueue* queue);
 void incrementar_saldos_fuera_cpu(ProcessQueue* queue);
+PCBArray* get_procesos_candidatos_partida_poker(ProcessQueue* queue);
 
 Node* get_primero(ProcessQueue* queue);
 Node* get_ultimo(ProcessQueue* queue);

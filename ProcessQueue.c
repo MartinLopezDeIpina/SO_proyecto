@@ -164,3 +164,46 @@ void lock_queue_mutex(ProcessQueue* queue) {
 void unlock_queue_mutex(ProcessQueue* queue) {
     pthread_mutex_unlock(&queue->mutex);
 }
+
+int get_num_procesos_en_cola(ProcessQueue* queue) {
+
+    int num_procesos = 0;
+    Node* current = queue->primer_nodo;
+    while (current != NULL) {
+        num_procesos++;
+        current = current->next;
+    }
+
+    return num_procesos;
+}
+
+PCBArray* get_procesos_candidatos_partida_poker(ProcessQueue* queue) {
+    pthread_mutex_lock(&queue->mutex);
+
+    int tamano_cola = get_num_procesos_en_cola(queue);
+
+    PCBArray* resultado = (PCBArray*)malloc(sizeof(PCBArray));
+    resultado->pcbs = (PCB**)malloc(sizeof(PCB*) * tamano_cola);
+    resultado->cantidad = 0;
+
+    // Recorrer la cola y añadir los PCBs que cumplan los criterios
+    Node* current = queue->primer_nodo;
+    while (current != NULL) {
+        if (proceso_esta_listo(current->pcb) && proceso_saldo_suficiente_para_entrar_core(current->pcb)) {
+            resultado->pcbs[resultado->cantidad] = current->pcb;
+            resultado->cantidad++;
+        }
+        current = current->next;
+    }
+
+    pthread_mutex_unlock(&queue->mutex);
+
+    // Si no encontramos ningún PCB válido, liberamos la memoria y devolvemos NULL
+    if (resultado->cantidad == 0) {
+        free(resultado->pcbs);
+        free(resultado);
+        return NULL;
+    }
+
+    return resultado;
+}

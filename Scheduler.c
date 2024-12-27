@@ -8,6 +8,7 @@
 #include "IComponenteTemporizable.h"
 #include "ProcessQueue.h"
 #include "Machine/Machine.h"
+#include "Poker/Partida.h"
 
 typedef struct {
     IComponenteTemporizable i_componente_temporizable;
@@ -15,24 +16,25 @@ typedef struct {
     Machine* machine;
 }Scheduler;
 
+PCB* jugar_partida_poker_y_get_ganador(Scheduler* scheduler, PCBArray* pcb_candidatos, int id_core) {
+    printf("jugando partida de poker\n");
+    Partida* partida;
+    init_partida(partida, pcb_candidatos, id_core);
+    PCB* ganador = jugar_partida_poker(partida);
+    return ganador;
+}
 
 void asignar_procesos_a_cores_ociosos(Scheduler* scheduler, int* ids_cores_ociosos, int num_cores_ociosos) {
-    lock_queue_mutex(scheduler->process_queue);
-
-    Node* nodo_actual = get_primero(scheduler->process_queue);
-    int i = 0;
-    while (nodo_actual != NULL && i < num_cores_ociosos) {
-        PCB* pcb = nodo_actual->pcb;
-        if (pcb->estado == LISTO && proceso_saldo_suficiente_para_entrar_core(pcb)) {
-            asignar_saldo_ejecucion(pcb);
-            asignar_proceso_a_machine(scheduler->machine, ids_cores_ociosos[i], pcb);
-            i++;
+    for (int i = 0; i < num_cores_ociosos; i++) {
+        PCBArray* pcb_candidatos = get_procesos_candidatos_partida_poker(scheduler->process_queue);
+        if (pcb_candidatos != NULL) {
+            PCB* ganador = jugar_partida_poker_y_get_ganador(scheduler, pcb_candidatos, ids_cores_ociosos[i]);
+            asignar_saldo_ejecucion(ganador);
+            asignar_proceso_a_machine(scheduler->machine, ids_cores_ociosos[i], ganador);
         }
-        nodo_actual = nodo_actual->next;
     }
-
-    unlock_queue_mutex(scheduler->process_queue);
 }
+
 
 void funcion_scheduler(Scheduler* scheduler) {
     printf("ejeutando funcion scheduler\n");
@@ -50,6 +52,8 @@ void funcion_scheduler(Scheduler* scheduler) {
     int num_cores_ociosos = get_ids_cores_ociosos(scheduler->machine, ids_cores_ociosos);
 
     asignar_procesos_a_cores_ociosos(scheduler, ids_cores_ociosos, num_cores_ociosos);
+
+    print_queue(scheduler -> process_queue);
 }
 
 void ejecutar_funcion_temporizador_scheduler(void* self) {

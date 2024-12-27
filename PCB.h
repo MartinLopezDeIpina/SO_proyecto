@@ -5,6 +5,8 @@
 #ifndef PCB_H
 #define PCB_H
 #include "Boolean.h"
+#include "Poker/Carta.h"
+
 typedef enum {
     LISTO,
     EJECUTANDO,
@@ -17,11 +19,23 @@ typedef struct {
     int pid;
     int num_instruccion_actual;
     int num_instrucciones;
-    int saldo;
-    int saldo_ejecucion;
+
     EstadoProceso estado;
     pthread_mutex_t mutex;
+
+    int saldo;
+    int saldo_ejecucion;
+    int min_saldo_entrar_core;
+    float agresividad;
+    Carta* cartas;
+    int apuesta_total_partida;
+
 } PCB;
+
+typedef struct {
+    PCB** pcbs;
+    int cantidad;
+} PCBArray;
 
 void init_pcb(PCB* pcb, int pid);
 void ejecutar_instruccion_proceso(PCB* pcb);

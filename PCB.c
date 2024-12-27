@@ -7,6 +7,10 @@
 #include <bits/pthreadtypes.h>
 #include "PCB.h"
 
+#include <stdlib.h>
+
+#include "utils.h"
+
 #include "Boolean.h"
 
 void init_pcb(PCB* pcb, int pid) {
@@ -14,8 +18,13 @@ void init_pcb(PCB* pcb, int pid) {
     pcb -> num_instruccion_actual = 0;
     pcb -> num_instrucciones = 5;
     pcb -> estado = LISTO;
+
     pcb -> saldo = 5;
     pcb -> saldo_ejecucion = 0;
+    pcb -> agresividad = float_aleatorio_entre_dos_numeros(0.0f, 0.5f);
+    pcb -> min_saldo_entrar_core = 3;
+    pcb -> cartas = (Carta*)malloc(sizeof(Carta) * 2);
+
     pthread_mutex_init(&pcb -> mutex, NULL);
 }
 

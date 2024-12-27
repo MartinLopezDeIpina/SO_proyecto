@@ -8,3 +8,11 @@
 int comparar_enteros(const void *a, const void *b) {
     return (*(int *)a - *(int *)b);
 }
+
+float float_aleatorio_entre_dos_numeros(float min, float max) {
+    return min + ((float)rand() / RAND_MAX) * (max - min);
+}
+
+int int_aleatorio_entre_dos_numeros(int min, int max) {
+    return min + rand() % (max - min + 1);
+}

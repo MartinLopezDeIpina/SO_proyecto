@@ -27,4 +27,12 @@ add_executable(untitled main.c
         Machine/Core.h
         utils.c
         utils.h
+        Poker/Carta.h
+        Poker/Baraja.c
+        Poker/Carta.c
+        Poker/Baraja.h
+        Poker/Partida.c
+        Poker/Partida.h
+        Poker/EvaluadorManos.c
+        Poker/EvaluadorManos.h
 )

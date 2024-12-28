@@ -6,6 +6,8 @@
 #define PCB_H
 #include "Boolean.h"
 #include "Poker/Carta.h"
+#include "utils.h"
+#include <pthread.h>
 
 typedef enum {
     LISTO,
@@ -38,7 +40,7 @@ typedef struct {
     int cantidad;
 } PCBArray;
 
-void init_pcb(PCB* pcb, int pid);
+void init_pcb(PCB* pcb, int pid, int prioridad);
 void ejecutar_instruccion_proceso(PCB* pcb);
 void printear_instrucciones_ejecutadas(PCB* pcb);
 
@@ -57,6 +59,7 @@ void decrementar_saldo_ejecucion(PCB* pcb, int saldo);
 void incrementar_saldo(PCB* pcb, int saldo);
 void decrementar_saldo(PCB* pcb, int saldo);
 void asignar_saldo_ejecucion(PCB* pcb);
+int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual);
 
 
 

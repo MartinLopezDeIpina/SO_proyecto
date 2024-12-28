@@ -294,17 +294,10 @@ static Boolean desempate_por_cartas(Carta* a_todas, Carta* b_todas, int mano_siz
     return FALSE;
 }
 
-/*
- * - Compara primero los valores globales de la mano (valor_mano).
- * - Si son iguales, aplica un desempate simplificado por valor de cartas.
- */
-Boolean mano_jugador_a_mejor_mano_jugador_b(PCB* a, PCB* b, Carta* cartas_comunes) {
-    int mano_size_a = a -> prioridad + 5;
-    int mano_size_b = b -> prioridad + 5;
-
+Boolean mano_a_mejor_mano_b(Carta* cartas_a, Carta* cartas_b, int mano_size_a, int mano_size_b, Carta* cartas_comunes) {
     Carta a_todas[mano_size_a], b_todas[mano_size_b];
-    combinar_cartas(a->cartas, cartas_comunes, mano_size_a, a_todas);
-    combinar_cartas(b->cartas, cartas_comunes, mano_size_b, b_todas);
+    combinar_cartas(cartas_a, cartas_comunes, mano_size_a, a_todas);
+    combinar_cartas(cartas_b, cartas_comunes, mano_size_b, b_todas);
 
     int valor_a = valor_mano(a_todas, mano_size_a);
     int valor_b = valor_mano(b_todas, mano_size_b);
@@ -319,4 +312,12 @@ Boolean mano_jugador_a_mejor_mano_jugador_b(PCB* a, PCB* b, Carta* cartas_comune
     }
 
     return desempate_por_cartas(a_todas, b_todas, mano_size_a, mano_size_b);
+}
+
+/*
+ * - Compara primero los valores globales de la mano (valor_mano).
+ * - Si son iguales, aplica un desempate simplificado por valor de cartas.
+ */
+Boolean mano_jugador_a_mejor_mano_jugador_b(PCB* a, PCB* b, Carta* cartas_comunes) {
+    return mano_a_mejor_mano_b(a->cartas, b->cartas, a->prioridad, b->prioridad, cartas_comunes);
 }

@@ -222,7 +222,7 @@ int get_valor_arbitrario_una_carta(Carta carta) {
    }
 }
 
-int get_valor_sklansky_malmuth(Carta carta1, Carta carta2) {
+int get_valor_sklansky_malmuth_suited_offsuited(Carta carta1, Carta carta2) {
    if (carta1.palo == carta2.palo) {
       return get_valor_sklansky_malmuth_suited(carta1, carta2);
    }else {
@@ -232,10 +232,10 @@ int get_valor_sklansky_malmuth(Carta carta1, Carta carta2) {
 
 int get_valor_sklansky_malmuth_2(Carta carta1, Carta carta2) {
 
-   int valor = get_valor_sklansky_malmuth(carta1, carta2);
+   int valor = get_valor_sklansky_malmuth_suited_offsuited(carta1, carta2);
    // En caso de ser la peor puntuación, puede que sea porque las cartas están al revés, probar con la otra combinación
    if (valor == 9){
-      valor = get_valor_sklansky_malmuth(carta2, carta1);
+      valor = get_valor_sklansky_malmuth_suited_offsuited(carta2, carta1);
    }
    return valor;
 }

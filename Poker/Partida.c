@@ -85,14 +85,18 @@ Boolean apuesta_del_jugador_iguala_sube_apuesta(int dinero_apuesta,int saldo_apo
 }
 
 // para simplificar, se hace una ronda de apuestas y otra ronda para igualar o retirarse.
-void jugar_ronda_apuestas(Partida* partida) {
+void jugar_ronda_apuestas(Partida* partida, Boolean preflop) {
     partida -> saldo_apuesta_actual = 0;
 
     //Ronda de apuestas
     for(int i = 0; i < partida->jugadores->cantidad; i++) {
         PCB* jugador = partida->jugadores->pcbs[i];
         int dinero_max_apostable_ronda = partida -> saldo_apuesta_maxima - partida -> saldo_apuesta_total;
-        int dinero_apuesta = get_apuesta_ronda(jugador, partida->pot, partida -> saldo_apuesta_actual, dinero_max_apostable_ronda, partida->baraja->num_barajas, partida->cartas_comunes);
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida->cartas_comunes, partida->jugadores->cantidad, partida->pot, partida->saldo_apuesta_actual);
+
+        if(dinero_apuesta >= dinero_max_apostable_ronda) {
+            dinero_apuesta = dinero_max_apostable_ronda;
+        }
 
         if(apuesta_del_jugador_iguala_sube_apuesta(dinero_apuesta, jugador -> apuesta_total_partida, partida -> saldo_apuesta_actual) == TRUE){
             jugador -> apuesta_total_partida += dinero_apuesta;
@@ -109,14 +113,16 @@ void jugar_ronda_apuestas(Partida* partida) {
     //Ronda de igualar o retirarse
     for(int i = 0; i < partida->jugadores->cantidad; i++) {
         PCB* jugador = partida->jugadores->pcbs[i];
-        int dinero_apuesta = get_apuesta_ronda(jugador, partida->pot, partida -> saldo_apuesta_actual);
+
+        int dinero_apuesta_necesario_jugador = partida -> saldo_apuesta_total - jugador -> apuesta_total_partida;
+
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida -> cartas_comunes, partida->jugadores->cantidad, partida -> pot, dinero_apuesta_necesario_jugador);
 
         int dinero_apuesta_jugador_total = jugador -> apuesta_total_partida + dinero_apuesta;
 
         Boolean igualar_apuesta;
         if(dinero_apuesta_jugador_total >= partida -> saldo_apuesta_total) {
             igualar_apuesta = TRUE;
-            dinero_apuesta = partida -> saldo_apuesta_total - jugador -> apuesta_total_partida;
         }else {
             igualar_apuesta = FALSE;
         }
@@ -156,10 +162,10 @@ PCB* jugar_partida_poker(Partida* partida) {
     pagar_dinero_inicial(partida);
 
     repartir_cartas_iniciales(partida);
-    jugar_ronda_apuestas(partida);
+    jugar_ronda_apuestas(partida, TRUE);
 
     repartir_cartas_comunes(partida);
-    jugar_ronda_apuestas(partida);
+    jugar_ronda_apuestas(partida, FALSE);
 
     PCB* ganador = obtener_ganador_de_jugadores_restantes(partida);
     return ganador;

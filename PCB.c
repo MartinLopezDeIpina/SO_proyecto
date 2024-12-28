@@ -14,6 +14,7 @@
 
 #include "Boolean.h"
 
+
 void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> pid = pid;
     pcb -> prioridad = prioridad;
@@ -160,6 +161,34 @@ void decrementar_saldo_ejecucion(PCB* pcb, int cantidad) {
 }
 
 
-int get_apuesta_ronda(PCB* pcb, Boolean preflop, int pot, int saldo_apuesta_actual, int saldo_max_apostable_ronda, int num_barajas, Carta* cartas_conocidas) {
-    int apuesa = get_dinero_a_apostar()
+int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual) {
+    Carta* cartas;
+    int num_cartas;
+    // Juntar cartas de la mano con las de la mesa
+    if (preflop == FALSE) {
+        Carta* cartas = malloc(sizeof(Carta) * pcb -> prioridad + 5);
+        num_cartas = pcb -> prioridad + 5;
+        for (int i = 0; i < pcb -> prioridad; i++) {
+           cartas[i] = pcb -> cartas[i];
+        }
+        for (int i = 0; i < 5; i++) {
+            cartas[pcb -> prioridad + i] = cartas_conocidas[i];
+        }
+    }else {
+       Carta* cartas = malloc(sizeof(Carta) * pcb -> prioridad);
+       num_cartas = pcb -> prioridad;
+       for (int i = 0; i < pcb -> prioridad; i++) {
+           cartas[i] = pcb -> cartas[i];
+       }
+    }
+    // Hacer un farol con la probabilidad de la agresividad
+    if(evento_con_probabilidad(pcb -> agresividad)) {
+        return pcb -> saldo;
+    }
+    int dinero_a_apostar = get_dinero_a_apostar(cartas, num_cartas, pot, saldo_apuesta_actual, num_jugadores, preflop);
+    // No apostar más de lo que se tiene
+    if(dinero_a_apostar >= pcb -> saldo) {
+        dinero_a_apostar = pcb -> saldo;
+    }
+    return dinero_a_apostar;
 }

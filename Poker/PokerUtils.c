@@ -6,6 +6,10 @@
 #include "SklanskyMalmuth.h"
 #include "PokerUtils.h"
 
+#include <string.h>
+
+#include "EvaluadorManos.h"
+
 // small blind es 1 porque todos pagan 1 para jugar la partida.
 int BIG_BLIND = 2;
 
@@ -25,8 +29,62 @@ float get_equidad_preflop_con_sklansky_malmuth(Carta* mano, int cantidad_cartas,
    return equidad;
 }
 
+// Función auxiliar para verificar si una carta ya está en uso
+static Boolean carta_esta_en_uso(Carta carta, Carta* cartas_usadas, int num_cartas_usadas) {
+    for(int i = 0; i < num_cartas_usadas; i++) {
+        if(cartas_usadas[i].numero == carta.numero && cartas_usadas[i].palo == carta.palo) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+/*
+ * Primero calcular la equidad contra un oponente con 2 cartas y dividirlo por el número de jugadores
+ */
 float get_equidad_postflop(Carta* cartas_conocidas, int cantidad_cartas_conocidas, int cantidad_jugadores) {
-    return 0;
+    Carta cartas_disponibles[52];
+    int num_cartas_disponibles = 0;
+
+    // Llenar el array de cartas disponibles
+    for(int palo = 0; palo < 4; palo++) {
+        for(int numero = 1; numero <= 13; numero++) {
+            Carta carta = {palo, numero};
+            if(!carta_esta_en_uso(carta, cartas_conocidas, cantidad_cartas_conocidas)) {
+                cartas_disponibles[num_cartas_disponibles++] = carta;
+            }
+        }
+    }
+
+    int victorias = 0;
+    int total_manos = 0;
+
+    int num_cartas_mano = cantidad_cartas_conocidas - 5;
+
+    // Obtener las cartas comunes -> las primeras son las de la mano del jugador y las otras 5 son las comunes
+    Carta cartas_comunes[5];
+    memcpy(cartas_comunes, cartas_conocidas + 2, 5 * sizeof(Carta));
+
+    Carta cartas_mano[2];
+    memcpy(cartas_mano, cartas_conocidas, num_cartas_mano * sizeof(Carta));
+
+    Carta cartas_oponente[2];
+
+    // Para cada posible combinación de 2 cartas del oponente
+    for(int i = 0; i < num_cartas_disponibles - 1; i++) {
+        cartas_oponente[0] = cartas_disponibles[i];
+
+        for(int j = i + 1; j < num_cartas_disponibles; j++) {
+            cartas_oponente[1] = cartas_disponibles[j];
+
+            total_manos++;
+            if(mano_a_mejor_mano_b(cartas_mano, cartas_oponente,  num_cartas_mano, 2, cartas_comunes) == TRUE) {
+                victorias++;
+            }
+        }
+    }
+    float equidad = (float)victorias / (float)total_manos;
+    return equidad / (float)cantidad_jugadores;
 }
 
 /*

@@ -21,3 +21,4 @@ typedef struct {
 }Partida;
 
 void init_partida(Partida* partida, PCBArray* candidatos, int id_core);
+PCB* jugar_partida_poker(Partida* partida);

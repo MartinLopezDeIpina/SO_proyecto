@@ -15,6 +15,7 @@ void init_baraja(Baraja* baraja, int num_cartas_necesarias_para_jugadores) {
 
     // Redondea al siguiente múltiplo de 52
     int num_barajas = (cartas_necesarias + 51) / 52;
+    baraja -> num_barajas = num_barajas;
 
     int cartas_baraja = num_barajas * 52;
     baraja->num_cartas = cartas_baraja;
@@ -49,14 +50,10 @@ void shuffle_baraja(Baraja* baraja) {
 }
 
 Carta repartir_carta(Baraja* baraja) {
-    if (baraja->num_cartas == 0) {
-        return NULL;
-    }
-
     Carta* carta = &baraja->cartas[baraja->num_cartas - 1];
     baraja->num_cartas--;
 
-    return carta;
+    return *carta;
 }
 
 void print_baraja(Baraja* baraja) {

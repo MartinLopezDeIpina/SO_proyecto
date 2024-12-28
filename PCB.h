@@ -17,6 +17,7 @@ typedef enum {
 
 typedef struct {
     int pid;
+    int prioridad;
     int num_instruccion_actual;
     int num_instrucciones;
 

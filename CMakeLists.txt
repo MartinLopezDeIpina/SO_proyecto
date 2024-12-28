@@ -35,4 +35,8 @@ add_executable(untitled main.c
         Poker/Partida.h
         Poker/EvaluadorManos.c
         Poker/EvaluadorManos.h
+        Poker/SklanskyMalmuth.h
+        Poker/SklanskyMalmuth.c
+        Poker/PokerUtils.c
+        Poker/PokerUtils.h
 )

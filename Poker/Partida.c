@@ -92,7 +92,7 @@ void jugar_ronda_apuestas(Partida* partida) {
     for(int i = 0; i < partida->jugadores->cantidad; i++) {
         PCB* jugador = partida->jugadores->pcbs[i];
         int dinero_max_apostable_ronda = partida -> saldo_apuesta_maxima - partida -> saldo_apuesta_total;
-        int dinero_apuesta = get_apuesta_ronda(jugador, partida->pot, partida -> saldo_apuesta_actual, dinero_max_apostable_ronda);
+        int dinero_apuesta = get_apuesta_ronda(jugador, partida->pot, partida -> saldo_apuesta_actual, dinero_max_apostable_ronda, partida->baraja->num_barajas, partida->cartas_comunes);
 
         if(apuesta_del_jugador_iguala_sube_apuesta(dinero_apuesta, jugador -> apuesta_total_partida, partida -> saldo_apuesta_actual) == TRUE){
             jugador -> apuesta_total_partida += dinero_apuesta;
@@ -109,7 +109,17 @@ void jugar_ronda_apuestas(Partida* partida) {
     //Ronda de igualar o retirarse
     for(int i = 0; i < partida->jugadores->cantidad; i++) {
         PCB* jugador = partida->jugadores->pcbs[i];
-        Boolean igualar_apuesta = get_igualar_apuesta(jugador, partida->pot, partida -> saldo_apuesta_actual);
+        int dinero_apuesta = get_apuesta_ronda(jugador, partida->pot, partida -> saldo_apuesta_actual);
+
+        int dinero_apuesta_jugador_total = jugador -> apuesta_total_partida + dinero_apuesta;
+
+        Boolean igualar_apuesta;
+        if(dinero_apuesta_jugador_total >= partida -> saldo_apuesta_total) {
+            igualar_apuesta = TRUE;
+            dinero_apuesta = partida -> saldo_apuesta_total - jugador -> apuesta_total_partida;
+        }else {
+            igualar_apuesta = FALSE;
+        }
 
         if(igualar_apuesta == TRUE){
             int dinero_apuesta = partida -> saldo_apuesta_total - jugador -> apuesta_total_partida;

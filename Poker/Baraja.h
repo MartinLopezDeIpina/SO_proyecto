@@ -11,6 +11,7 @@
 typedef struct {
     Carta* cartas;
     int num_cartas;
+    int num_barajas;
 }Baraja;
 
 void init_baraja(Baraja* baraja, int num_cartas_necesarias_para_jugadores);

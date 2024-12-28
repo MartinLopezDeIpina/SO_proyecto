@@ -10,11 +10,13 @@
 #include <stdlib.h>
 
 #include "utils.h"
+#include "Poker/PokerUtils.h"
 
 #include "Boolean.h"
 
-void init_pcb(PCB* pcb, int pid) {
+void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> pid = pid;
+    pcb -> prioridad = prioridad;
     pcb -> num_instruccion_actual = 0;
     pcb -> num_instrucciones = 5;
     pcb -> estado = LISTO;
@@ -155,4 +157,9 @@ void decrementar_saldo_ejecucion(PCB* pcb, int cantidad) {
     if (pcb -> saldo_ejecucion <= 0) {
         pcb -> estado = SALDO_INSUFICIENTE;
     }
+}
+
+
+int get_apuesta_ronda(PCB* pcb, Boolean preflop, int pot, int saldo_apuesta_actual, int saldo_max_apostable_ronda, int num_barajas, Carta* cartas_conocidas) {
+    int apuesa = get_dinero_a_apostar()
 }

@@ -21,14 +21,14 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> pid = pid;
     pcb -> prioridad = prioridad;
     pcb -> num_instruccion_actual = 0;
-    pcb -> num_instrucciones = 5;
+    pcb -> num_instrucciones = INSTRUCCIONES_POR_PROCESO;
     pcb -> estado = LISTO;
 
     pcb -> saldo = 5;
     pcb -> saldo_ejecucion = 0;
     pcb -> agresividad = float_aleatorio_entre_dos_numeros(0.0f, 0.25f);
     pcb -> min_saldo_entrar_core = 3;
-    pcb -> cartas = (Carta*)malloc(sizeof(Carta) * 2);
+    pcb -> cartas = (Carta*)malloc(sizeof(Carta) * prioridad);
 
     pthread_mutex_init(&pcb -> mutex, NULL);
 }
@@ -164,7 +164,7 @@ void decrementar_saldo_ejecucion(PCB* pcb, int cantidad) {
 
 
 
-int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual, Boolean ronda_igualar) {
+int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_total, Boolean ronda_igualar) {
     Carta** cartas;
     int num_cartas;
     // Juntar cartas de la mano con las de la mesa
@@ -190,7 +190,8 @@ int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int
         print_all_in();
         return pcb -> saldo;
     }
-    int dinero_a_apostar = get_dinero_a_apostar(cartas, num_cartas, pot, saldo_apuesta_actual, num_jugadores, preflop, ronda_igualar);
+    int dinero_necesario_apostar = saldo_apuesta_total - pcb->apuesta_total_partida;
+    int dinero_a_apostar = get_dinero_a_apostar(cartas, num_cartas, pot, dinero_necesario_apostar, num_jugadores, preflop, ronda_igualar);
     // No apostar más de lo que se tiene
     if(dinero_a_apostar >= pcb -> saldo) {
         dinero_a_apostar = pcb -> saldo;

@@ -48,8 +48,16 @@ void init_partida(Partida* partida, PCBArray* candidatos, int id_core) {
     partida -> saldo_apuesta_total = 0;
     partida -> saldo_apuesta_inicial = 1;
 }
-void eliminar_jugador(Partida* partida, int indice) {
-    print_eliminar_jugador_partida(partida->jugadores->pcbs[indice]->pid);
+void eliminar_jugador(Partida* partida, int pid) {
+    print_eliminar_jugador_partida(pid);
+
+    int indice = -1;
+    for(int i = 0; i < partida->jugadores_aux->cantidad; i++) {
+        if(partida->jugadores_aux->pcbs[i]->pid == pid) {
+            indice = i;
+            break;
+        }
+    }
 
     // Mover los jugadores restantes una posición hacia la izquierda, sobreescribiendo al jugador eliminado
     for (int i = indice; i < partida->jugadores_aux->cantidad - 1; i++) {
@@ -63,8 +71,9 @@ void eliminar_jugador(Partida* partida, int indice) {
 void repartir_cartas_iniciales(Partida* partida){
     for (int i = 0; i < partida->jugadores->cantidad; i++) {
         PCB* jugador = partida->jugadores->pcbs[i];
-        jugador->cartas[0] = repartir_carta(partida->baraja);
-        jugador->cartas[1] = repartir_carta(partida->baraja);
+        for(int j = 0; j < jugador->prioridad; j++) {
+            jugador->cartas[j] = repartir_carta(partida->baraja);
+        }
     }
     print_cartas_iniciales(partida);
 }
@@ -81,6 +90,7 @@ void pagar_dinero_inicial(Partida* partida){
         partida -> jugadores -> pcbs[i] -> apuesta_total_partida = 1;
         partida->pot++;
     }
+    partida -> saldo_apuesta_total = 1;
 }
 
 Boolean apuesta_del_jugador_iguala_sube_apuesta(int dinero_apuesta,int saldo_apostado_jugador, int saldo_apuesta_actual) {
@@ -103,7 +113,7 @@ void jugar_ronda_inicial_de_apuestas(Partida* partida, Boolean preflop) {
         print_jugador_apostando(partida->jugadores->pcbs[i]);
 
         PCB* jugador = partida->jugadores->pcbs[i];
-        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida->cartas_comunes, partida->jugadores->cantidad, partida->pot, partida->saldo_apuesta_actual, FALSE);
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida->cartas_comunes, partida->jugadores->cantidad, partida->pot, partida->saldo_apuesta_total, FALSE);
 
         int dinero_apuesta_total_jugador = jugador -> apuesta_total_partida + dinero_apuesta;
         if(dinero_apuesta_total_jugador >= partida -> saldo_apuesta_maxima) {
@@ -111,16 +121,14 @@ void jugar_ronda_inicial_de_apuestas(Partida* partida, Boolean preflop) {
         }
 
         print_dinero_apostado(dinero_apuesta);
-
-        if(apuesta_del_jugador_iguala_sube_apuesta(dinero_apuesta, jugador -> apuesta_total_partida, partida -> saldo_apuesta_actual) == TRUE){
+        if(dinero_apuesta + jugador->apuesta_total_partida >= partida->saldo_apuesta_total){
             jugador -> apuesta_total_partida += dinero_apuesta;
             decrementar_saldo(jugador, dinero_apuesta);
             partida -> pot += dinero_apuesta;
             partida -> saldo_apuesta_total = jugador -> apuesta_total_partida;
-            partida -> saldo_apuesta_actual += (dinero_apuesta - partida -> saldo_apuesta_actual);
 
         }else {
-            eliminar_jugador(partida, i);
+            eliminar_jugador(partida, jugador->pid);
         }
     }
 }
@@ -140,7 +148,7 @@ void jugar_ronda_de_igualar_o_retirarse(Partida* partida, Boolean preflop) {
 
         int dinero_apuesta_necesario_jugador = partida -> saldo_apuesta_total - jugador -> apuesta_total_partida;
 
-        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida -> cartas_comunes, partida->jugadores->cantidad, partida -> pot, dinero_apuesta_necesario_jugador, TRUE);
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida -> cartas_comunes, partida->jugadores->cantidad, partida -> pot, partida->saldo_apuesta_total, TRUE);
 
         int dinero_apuesta_jugador_total = jugador -> apuesta_total_partida + dinero_apuesta;
 
@@ -158,7 +166,7 @@ void jugar_ronda_de_igualar_o_retirarse(Partida* partida, Boolean preflop) {
             decrementar_saldo(jugador, dinero_apuesta);
             partida -> pot += dinero_apuesta;
         }else {
-            eliminar_jugador(partida, i);
+            eliminar_jugador(partida, jugador->pid);
         }
     }
 }
@@ -166,7 +174,6 @@ void jugar_ronda_de_igualar_o_retirarse(Partida* partida, Boolean preflop) {
 
 // para simplificar, se hace una ronda de apuestas y otra ronda para igualar o retirarse.
 void jugar_ronda_apuestas(Partida* partida, Boolean preflop) {
-    partida -> saldo_apuesta_actual = 0;
     // Crear copia de jugadores para ir eliminnando los que se retiran y poder seguir iterando sin problemas
     partida -> jugadores_aux = shallow_copy_pcb_array(partida -> jugadores);
 
@@ -181,8 +188,6 @@ void jugar_ronda_apuestas(Partida* partida, Boolean preflop) {
     partida -> jugadores = shallow_copy_pcb_array(partida -> jugadores_aux);
     free(partida -> jugadores_aux);
 }
-
-
 
 PCB* obtener_ganador_de_jugadores_restantes(Partida* partida) {
     print_eligiendo_ganador(partida);

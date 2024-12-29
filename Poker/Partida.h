@@ -14,7 +14,6 @@ typedef struct {
    PCBArray* jugadores_aux;
    Carta* cartas_comunes;
    int id_core_en_juego;
-   int saldo_apuesta_actual;
    int saldo_apuesta_total;
    int saldo_apuesta_maxima;
    int saldo_apuesta_inicial;

@@ -34,12 +34,26 @@ void print_dinero_apostado(int dinero_apuesta) {
 void print_dinero_apostado_iguala_apuesta(int dinero_apuesta) {
     debug_printf("IGUALA APUESTA %d$\n", dinero_apuesta);
 }
+
+void print_cartas_jugador(PCB* jugador) {
+    debug_printf("Proceso %d: ", jugador->pid);
+    for (int i = 0; i < jugador->prioridad; i++) {
+        debug_printf("%s ", carta_to_string(&(jugador->cartas[i])));
+
+        if(i <= jugador->prioridad-2) {
+            debug_printf("/ ");
+        }
+    }
+}
+
 void print_cartas_iniciales(Partida* partida) {
     if(debug_partida == TRUE) {
         debug_printf("\n*** Iniciando partida ***\n");
         for (int i = 0; i < partida->jugadores->cantidad; i++) {
-            debug_printf("Proceso %d: ", partida->jugadores->pcbs[i]->pid);
-            debug_printf("%s / %s \n", carta_to_string(&(partida->jugadores->pcbs[i]->cartas[0])), carta_to_string(&(partida->jugadores->pcbs[i]->cartas[1])));
+            PCB* jugador = partida->jugadores->pcbs[i];
+            debug_printf("Proceso %d: ", jugador->pid);
+            print_cartas_jugador(jugador);
+            debug_printf("\n");
         }
     }
 }
@@ -65,13 +79,10 @@ void print_eligiendo_ganador(Partida* partida) {
     debug_printf("\n");
     for (int i = 0; i < partida->jugadores->cantidad; i++) {
         debug_printf("Proceso %d: ", partida->jugadores->pcbs[i]->pid);
+
         PCB* jugador = partida->jugadores->pcbs[i];
-        for (int j = 0; j < jugador->prioridad; j++) {
-            debug_printf("%s ", carta_to_string(&(jugador->cartas[j])));
-            if(j <= jugador->prioridad-2) {
-                debug_printf("/ ");
-            }
-        }
+        print_cartas_jugador(jugador);
+
         Carta* todas = (Carta*) malloc(sizeof(Carta) * (jugador->prioridad+5));
         combinar_cartas(jugador->cartas, partida->cartas_comunes, jugador->prioridad, todas);
 

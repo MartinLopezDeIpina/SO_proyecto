@@ -16,7 +16,8 @@ typedef struct {
 
 void generar_proceso(ProcessGenerator* process_generator) {
     PCB* pcb = (PCB*)malloc(sizeof(PCB));
-    init_pcb(pcb, process_generator -> ultimo_pid, 2);
+    int prioridad = int_aleatorio_entre_dos_numeros(1, 3);
+    init_pcb(pcb, process_generator -> ultimo_pid, prioridad);
     process_generator -> ultimo_pid++;
     enqueue(process_generator -> process_queue, pcb);
 }

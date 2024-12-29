@@ -27,7 +27,7 @@ float get_pot_odds(int pot, int apuesta_necesaria) {
 float get_equidad_preflop_con_sklansky_malmuth(Carta** mano, int cantidad_cartas, int cantidad_jugadores) {
    int valor_s = get_valor_sklansky_malmuth(mano, cantidad_cartas);
 
-   float equidad = 100.0f - (float)(valor_s * 4 * cantidad_jugadores);
+   float equidad = 100.0f - (float)(valor_s * 4 * (float)(cantidad_jugadores/4));
 
    return equidad;
 }
@@ -132,13 +132,13 @@ int get_dinero_a_apostar(Carta** cartas_conocidas, int num_cartas, int pot, int 
     print_info_apuesta(equidad, relacion);
 
 
-    if(relacion >= 2) {
+    if(relacion >= 6) {
         return apuesta_necesaria * 3;
     }
-    if (relacion >= 1.5) {
+    if (relacion >= 5) {
         return apuesta_necesaria * 2;
     }
-    if (relacion >= 0.5 || (relacion >= 0 && ronda_igualar == TRUE)) {
+    if (relacion >= 4 || (relacion >= 2 && ronda_igualar == TRUE)) {
         return apuesta_necesaria;
     }
     return 0;

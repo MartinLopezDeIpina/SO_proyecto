@@ -89,7 +89,6 @@ float get_equidad_postflop(Carta** cartas_conocidas, int cantidad_cartas_conocid
             cartas_oponente[1] = cartas_disponibles[j];
 
             total_manos++;
-            printf("probando oponente con %s %s\n", carta_to_string(&cartas_oponente[0]), carta_to_string(&cartas_oponente[1]));
             if(mano_a_mejor_mano_b(cartas_mano, cartas_oponente,  num_cartas_mano, 2, cartas_comunes) == TRUE) {
                 victorias++;
             }
@@ -104,7 +103,7 @@ float get_equidad_postflop(Carta** cartas_conocidas, int cantidad_cartas_conocid
 /*
  * Si tenemos 0.8 de equidad, el pot es de 10 y la apuesta es de 3 -> ev = 7.6, entonces relacion con BB = 3.7 -> apostar x 3
  */
-int get_dinero_a_apostar(Carta** cartas_conocidas, int num_cartas, int pot, int apuesta_necesaria, int num_jugadores, Boolean preflop) {
+int get_dinero_a_apostar(Carta** cartas_conocidas, int num_cartas, int pot, int apuesta_necesaria, int num_jugadores, Boolean preflop, Boolean ronda_igualar) {
 
     if (apuesta_necesaria == 0) {
         apuesta_necesaria = SMALL_BLIND;
@@ -139,7 +138,7 @@ int get_dinero_a_apostar(Carta** cartas_conocidas, int num_cartas, int pot, int 
     if (relacion >= 1.5) {
         return apuesta_necesaria * 2;
     }
-    if (relacion >= 0.5) {
+    if (relacion >= 0.5 || (relacion >= 0 && ronda_igualar == TRUE)) {
         return apuesta_necesaria;
     }
     return 0;

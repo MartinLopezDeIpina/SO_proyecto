@@ -48,6 +48,7 @@ typedef struct {
 
 char* palo_a_string(enum Palo palo);
 char* carta_to_string(Carta* carta);
+char* valor_combinacion_to_string_combinacion(int valor);
 
 
 #endif //CARTA_H

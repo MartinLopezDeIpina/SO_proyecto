@@ -226,7 +226,7 @@ static Boolean contiene_carta_alta(Carta* todas, int mano_size) {
     return TRUE;
 }
 
-static void combinar_cartas(Carta* propias, Carta* comunes, int mano_size, Carta* resultado) {
+void combinar_cartas(Carta* propias, Carta* comunes, int mano_size, Carta* resultado) {
     for(int i = 0; i < mano_size; i++){
         resultado[i] = propias[i];
     }
@@ -318,26 +318,8 @@ Boolean mano_a_mejor_mano_b(Carta* cartas_a, Carta* cartas_b, int mano_size_a, i
     combinar_cartas(cartas_a, cartas_comunes, mano_size_a, a_todas);
     combinar_cartas(cartas_b, cartas_comunes, mano_size_b, b_todas);
 
-    printf("cartas_a: \n");
-    for(int i = 0; i < mano_size_a+5; i++) {
-        printf("%s", carta_to_string(&a_todas[i]));
-    }
-    printf("\n");
-
     int valor_a = valor_mano(a_todas, mano_size_a+5);
-
-    printf("valor: %d\n", valor_a);
-
-    printf("cartas_b: \n");
-    for(int i = 0; i < mano_size_a+5; i++) {
-        printf("%s", carta_to_string(&b_todas[i]));
-    }
-    printf("\n");
-
     int valor_b = valor_mano(b_todas, mano_size_b+5);
-
-    printf("valor: %d\n", valor_b);
-
 
     // Si la puntuación de A es mayor, gana directamente
     if(valor_a > valor_b) {

@@ -17,5 +17,7 @@ void print_all_in();
 void print_info_apuesta(float equidad, float relacion);
 void print_eliminar_jugador_partida(int pid);
 void print_ronda_apuestas(Boolean preflop);
+void print_eligiendo_ganador(Partida* partida);
+void print_ganador(Partida* partida, PCB* jugador);
 
 #endif //DEBUGPRINTS_H

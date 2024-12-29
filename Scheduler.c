@@ -17,7 +17,6 @@ typedef struct {
 }Scheduler;
 
 PCB* jugar_partida_poker_y_get_ganador(Scheduler* scheduler, PCBArray* pcb_candidatos, int id_core) {
-    printf("jugando partida de poker\n");
     Partida partida;
     init_partida(&partida, pcb_candidatos, id_core);
     PCB* ganador = jugar_partida_poker(&partida);

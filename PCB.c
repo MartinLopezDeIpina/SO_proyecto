@@ -81,7 +81,7 @@ Boolean proceso_saldo_ejecucion_insuficiente(PCB* pcb) {
 Boolean proceso_saldo_suficiente_para_entrar_core(PCB* pcb) {
     pthread_mutex_lock(&pcb -> mutex);
     Boolean saldo_suficiente = FALSE;
-    if (pcb -> saldo > 0) {
+    if (pcb -> saldo > SALDO_NECESARIO_PARA_JUGAR_POKER) {
         saldo_suficiente = TRUE;
     }
     pthread_mutex_unlock(&pcb -> mutex);
@@ -164,7 +164,7 @@ void decrementar_saldo_ejecucion(PCB* pcb, int cantidad) {
 
 
 
-int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual) {
+int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual, Boolean ronda_igualar) {
     Carta** cartas;
     int num_cartas;
     // Juntar cartas de la mano con las de la mesa
@@ -190,7 +190,7 @@ int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int
         print_all_in();
         return pcb -> saldo;
     }
-    int dinero_a_apostar = get_dinero_a_apostar(cartas, num_cartas, pot, saldo_apuesta_actual, num_jugadores, preflop);
+    int dinero_a_apostar = get_dinero_a_apostar(cartas, num_cartas, pot, saldo_apuesta_actual, num_jugadores, preflop, ronda_igualar);
     // No apostar más de lo que se tiene
     if(dinero_a_apostar >= pcb -> saldo) {
         dinero_a_apostar = pcb -> saldo;

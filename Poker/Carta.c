@@ -41,3 +41,19 @@ char* carta_to_string(Carta* carta) {
 
     return string;
 }
+
+char* valor_combinacion_to_string_combinacion(int valor) {
+    switch(valor) {
+        case 0: return "Carta alta";
+        case 1: return "Pareja";
+        case 2: return "Doble pareja";
+        case 3: return "Trío";
+        case 4: return "Escalera";
+        case 5: return "Color";
+        case 6: return "Full";
+        case 7: return "Poker";
+        case 8: return "Escalera de color";
+        case 9: return "Escalera real";
+        default: return "Combinación desconocida";
+    }
+}

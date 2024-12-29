@@ -78,6 +78,7 @@ void repartir_cartas_comunes(Partida* partida){
 void pagar_dinero_inicial(Partida* partida){
     for (int i = 0; i < partida -> jugadores ->cantidad; i++) {
         decrementar_saldo(partida -> jugadores -> pcbs[i], 1);
+        partida -> jugadores -> pcbs[i] -> apuesta_total_partida = 1;
         partida->pot++;
     }
 }
@@ -102,7 +103,7 @@ void jugar_ronda_inicial_de_apuestas(Partida* partida, Boolean preflop) {
         print_jugador_apostando(partida->jugadores->pcbs[i]);
 
         PCB* jugador = partida->jugadores->pcbs[i];
-        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida->cartas_comunes, partida->jugadores->cantidad, partida->pot, partida->saldo_apuesta_actual);
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida->cartas_comunes, partida->jugadores->cantidad, partida->pot, partida->saldo_apuesta_actual, FALSE);
 
         int dinero_apuesta_total_jugador = jugador -> apuesta_total_partida + dinero_apuesta;
         if(dinero_apuesta_total_jugador >= partida -> saldo_apuesta_maxima) {
@@ -139,7 +140,7 @@ void jugar_ronda_de_igualar_o_retirarse(Partida* partida, Boolean preflop) {
 
         int dinero_apuesta_necesario_jugador = partida -> saldo_apuesta_total - jugador -> apuesta_total_partida;
 
-        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida -> cartas_comunes, partida->jugadores->cantidad, partida -> pot, dinero_apuesta_necesario_jugador);
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida -> cartas_comunes, partida->jugadores->cantidad, partida -> pot, dinero_apuesta_necesario_jugador, TRUE);
 
         int dinero_apuesta_jugador_total = jugador -> apuesta_total_partida + dinero_apuesta;
 
@@ -184,6 +185,7 @@ void jugar_ronda_apuestas(Partida* partida, Boolean preflop) {
 
 
 PCB* obtener_ganador_de_jugadores_restantes(Partida* partida) {
+    print_eligiendo_ganador(partida);
     PCB* ganador = NULL;
     for (int i = 0; i < partida->jugadores->cantidad; i++) {
         if (ganador == NULL) {
@@ -194,6 +196,7 @@ PCB* obtener_ganador_de_jugadores_restantes(Partida* partida) {
             }
         }
     }
+    print_ganador(partida, ganador);
     return ganador;
 }
 
@@ -210,5 +213,6 @@ PCB* jugar_partida_poker(Partida* partida) {
     jugar_ronda_apuestas(partida, FALSE);
 
     PCB* ganador = obtener_ganador_de_jugadores_restantes(partida);
+    incrementar_saldo(ganador, partida->pot);
     return ganador;
 }

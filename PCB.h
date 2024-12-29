@@ -60,7 +60,7 @@ void decrementar_saldo_ejecucion(PCB* pcb, int saldo);
 void incrementar_saldo(PCB* pcb, int saldo);
 void decrementar_saldo(PCB* pcb, int saldo);
 void asignar_saldo_ejecucion(PCB* pcb);
-int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual);
+int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual, Boolean ronda_igualar);
 
 
 

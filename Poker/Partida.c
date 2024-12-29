@@ -113,7 +113,7 @@ void jugar_ronda_inicial_de_apuestas(Partida* partida, Boolean preflop) {
         print_jugador_apostando(partida->jugadores->pcbs[i]);
 
         PCB* jugador = partida->jugadores->pcbs[i];
-        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida->cartas_comunes, partida->jugadores->cantidad, partida->pot, partida->saldo_apuesta_total, FALSE);
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, partida->id_core_en_juego, preflop, partida->cartas_comunes, partida->jugadores->cantidad, partida->pot, partida->saldo_apuesta_total, FALSE);
 
         int dinero_apuesta_total_jugador = jugador -> apuesta_total_partida + dinero_apuesta;
         if(dinero_apuesta_total_jugador >= partida -> saldo_apuesta_maxima) {
@@ -148,7 +148,7 @@ void jugar_ronda_de_igualar_o_retirarse(Partida* partida, Boolean preflop) {
 
         int dinero_apuesta_necesario_jugador = partida -> saldo_apuesta_total - jugador -> apuesta_total_partida;
 
-        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, preflop, partida -> cartas_comunes, partida->jugadores->cantidad, partida -> pot, partida->saldo_apuesta_total, TRUE);
+        int dinero_apuesta = get_apuesta_ronda_pcb(jugador, partida->id_core_en_juego, preflop, partida -> cartas_comunes, partida->jugadores->cantidad, partida -> pot, partida->saldo_apuesta_total, TRUE);
 
         int dinero_apuesta_jugador_total = jugador -> apuesta_total_partida + dinero_apuesta;
 

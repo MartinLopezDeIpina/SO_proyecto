@@ -126,5 +126,6 @@ void asignar_proceso_a_core(Core* core, PCB* pcb) {
     pthread_mutex_lock(&core->mutex_acceso_core);
     core -> current_process = pcb;
     set_estado_proceso_ejecutando(pcb);
+    set_ultimo_core_visitado_pcb(pcb, core -> id_core);
     pthread_mutex_unlock(&core->mutex_acceso_core);
 }

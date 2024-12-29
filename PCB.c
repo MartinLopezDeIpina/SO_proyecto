@@ -23,6 +23,7 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> num_instruccion_actual = 0;
     pcb -> num_instrucciones = INSTRUCCIONES_POR_PROCESO;
     pcb -> estado = LISTO;
+    pcb -> indice_ultimo_core_visitado = -1;
 
     pcb -> saldo = 5;
     pcb -> saldo_ejecucion = 0;
@@ -164,7 +165,7 @@ void decrementar_saldo_ejecucion(PCB* pcb, int cantidad) {
 
 
 
-int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_total, Boolean ronda_igualar) {
+int get_apuesta_ronda_pcb(PCB* pcb, int id_core_sorteado, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_total, Boolean ronda_igualar) {
     Carta** cartas;
     int num_cartas;
     // Juntar cartas de la mano con las de la mesa
@@ -184,12 +185,18 @@ int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int
            cartas[i] = &(pcb -> cartas[i]);
        }
     }
+
+    int multiplicador_afinidad_core = 1;
+    if (id_core_sorteado == pcb -> indice_ultimo_core_visitado) {
+        multiplicador_afinidad_core = 2;
+    }
     // Hacer un farol con la probabilidad de la agresividad
-    if(evento_con_probabilidad(pcb -> agresividad)) {
+    if(evento_con_probabilidad(pcb -> agresividad * (float)multiplicador_afinidad_core)) {
         free(cartas);
         print_all_in();
         return pcb -> saldo;
     }
+
     int dinero_necesario_apostar = saldo_apuesta_total - pcb->apuesta_total_partida;
     int dinero_a_apostar = get_dinero_a_apostar(cartas, num_cartas, pot, dinero_necesario_apostar, num_jugadores, preflop, ronda_igualar);
     // No apostar más de lo que se tiene
@@ -217,3 +224,10 @@ PCBArray* shallow_copy_pcb_array(PCBArray* original) {
 
     return copia;
 }
+
+void set_ultimo_core_visitado_pcb(PCB* pcb, int id_core) {
+    pthread_mutex_lock(&pcb -> mutex);
+    pcb -> indice_ultimo_core_visitado = id_core;
+    pthread_mutex_unlock(&pcb -> mutex);
+}
+

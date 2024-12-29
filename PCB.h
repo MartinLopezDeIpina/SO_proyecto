@@ -39,6 +39,7 @@ typedef struct {
     PCB** pcbs;
     int cantidad;
 } PCBArray;
+PCBArray* shallow_copy_pcb_array(PCBArray* original);
 
 void init_pcb(PCB* pcb, int pid, int prioridad);
 void ejecutar_instruccion_proceso(PCB* pcb);

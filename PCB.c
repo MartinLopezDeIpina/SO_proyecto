@@ -13,6 +13,8 @@
 #include "Poker/PokerUtils.h"
 
 #include "Boolean.h"
+#include "DebugPrints.h"
+#include "globals.h"
 
 
 void init_pcb(PCB* pcb, int pid, int prioridad) {
@@ -24,7 +26,7 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
 
     pcb -> saldo = 5;
     pcb -> saldo_ejecucion = 0;
-    pcb -> agresividad = float_aleatorio_entre_dos_numeros(0.0f, 0.5f);
+    pcb -> agresividad = float_aleatorio_entre_dos_numeros(0.0f, 0.25f);
     pcb -> min_saldo_entrar_core = 3;
     pcb -> cartas = (Carta*)malloc(sizeof(Carta) * 2);
 
@@ -161,28 +163,31 @@ void decrementar_saldo_ejecucion(PCB* pcb, int cantidad) {
 }
 
 
+
 int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int num_jugadores, int pot, int saldo_apuesta_actual) {
-    Carta* cartas;
+    Carta** cartas;
     int num_cartas;
     // Juntar cartas de la mano con las de la mesa
     if (preflop == FALSE) {
-        Carta* cartas = malloc(sizeof(Carta) * pcb -> prioridad + 5);
+        cartas = malloc(sizeof(Carta*) * (pcb -> prioridad + 5));
         num_cartas = pcb -> prioridad + 5;
         for (int i = 0; i < pcb -> prioridad; i++) {
-           cartas[i] = pcb -> cartas[i];
+           cartas[i] = &(pcb -> cartas[i]);
         }
         for (int i = 0; i < 5; i++) {
-            cartas[pcb -> prioridad + i] = cartas_conocidas[i];
+            cartas[pcb -> prioridad + i] = &(cartas_conocidas[i]);
         }
     }else {
-       Carta* cartas = malloc(sizeof(Carta) * pcb -> prioridad);
+       cartas = malloc(sizeof(Carta*) * pcb -> prioridad);
        num_cartas = pcb -> prioridad;
-       for (int i = 0; i < pcb -> prioridad; i++) {
-           cartas[i] = pcb -> cartas[i];
+       for (int i = 0; i < num_cartas; i++) {
+           cartas[i] = &(pcb -> cartas[i]);
        }
     }
     // Hacer un farol con la probabilidad de la agresividad
     if(evento_con_probabilidad(pcb -> agresividad)) {
+        free(cartas);
+        print_all_in();
         return pcb -> saldo;
     }
     int dinero_a_apostar = get_dinero_a_apostar(cartas, num_cartas, pot, saldo_apuesta_actual, num_jugadores, preflop);
@@ -190,5 +195,24 @@ int get_apuesta_ronda_pcb(PCB* pcb, Boolean preflop, Carta* cartas_conocidas,int
     if(dinero_a_apostar >= pcb -> saldo) {
         dinero_a_apostar = pcb -> saldo;
     }
+    free(cartas);
     return dinero_a_apostar;
+}
+
+// copiar los punteros de los PCBs
+PCBArray* shallow_copy_pcb_array(PCBArray* original) {
+    if (original == NULL) return NULL;
+
+    PCBArray* copia = (PCBArray*)malloc(sizeof(PCBArray));
+    copia->cantidad = original->cantidad;
+
+    // Reservar memoria solo para el array de punteros
+    copia->pcbs = (PCB**)malloc(sizeof(PCB*) * original->cantidad);
+
+    // Copiar los punteros directamente
+    for (int i = 0; i < original->cantidad; i++) {
+        copia->pcbs[i] = original->pcbs[i];
+    }
+
+    return copia;
 }

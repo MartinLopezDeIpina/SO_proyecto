@@ -39,4 +39,7 @@ add_executable(untitled main.c
         Poker/SklanskyMalmuth.c
         Poker/PokerUtils.c
         Poker/PokerUtils.h
+        globals.h
+        DebugPrints.c
+        DebugPrints.h
 )

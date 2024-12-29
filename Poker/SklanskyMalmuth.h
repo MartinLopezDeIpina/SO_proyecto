@@ -9,4 +9,4 @@
 #endif //SKLANSKYMALMUTH_H
 
 
-int get_valor_sklansky_malmuth(Carta* mano, int num_cartas);
+int get_valor_sklansky_malmuth(Carta** mano, int num_cartas);

@@ -130,12 +130,30 @@ static Boolean contiene_poker(Carta* todas, int mano_size) {
 static Boolean contiene_full(Carta* todas, int mano_size) {
     int conteo[14] = {0};
     contar_numeros(todas, conteo, mano_size);
-    Boolean hay_trio = FALSE, hay_par = FALSE;
+    Boolean hay_trio = FALSE;
+    int numero_trio = 0;
+    Boolean hay_par = FALSE;
+
+    // Primero buscar el trío
     for(int i = 1; i <= 13; i++) {
-        if(conteo[i] >= 3) hay_trio = TRUE;
-        if(conteo[i] >= 2) hay_par = TRUE;
+        if(conteo[i] >= 3) {
+            hay_trio = TRUE;
+            numero_trio = i;
+            break;
+        }
     }
-    return (hay_trio && hay_par) ? TRUE : FALSE;
+
+    // Luego buscar un par diferente al número del trío
+    if(hay_trio) {
+        for(int i = 1; i <= 13; i++) {
+            if(i != numero_trio && conteo[i] >= 2) {
+                hay_par = TRUE;
+                break;
+            }
+        }
+    }
+
+    return (hay_trio && hay_par);
 }
 
 /*
@@ -208,8 +226,7 @@ static Boolean contiene_carta_alta(Carta* todas, int mano_size) {
     return TRUE;
 }
 
-static void combinar_cartas(Carta* propias, Carta* comunes, int mano_size_total, Carta* resultado) {
-    int mano_size = mano_size_total - 5;
+static void combinar_cartas(Carta* propias, Carta* comunes, int mano_size, Carta* resultado) {
     for(int i = 0; i < mano_size; i++){
         resultado[i] = propias[i];
     }
@@ -275,6 +292,7 @@ static Boolean desempate_por_cartas(Carta* a_todas, Carta* b_todas, int mano_siz
     qsort(a_todas, mano_size_a, sizeof(Carta), comparar_desc);
     qsort(b_todas, mano_size_b, sizeof(Carta), comparar_desc);
 
+
     int min_mano_size = (mano_size_a < mano_size_b) ? mano_size_a : mano_size_b;
 
     // Comparar carta a carta hasta encontrar una diferencia
@@ -295,23 +313,49 @@ static Boolean desempate_por_cartas(Carta* a_todas, Carta* b_todas, int mano_siz
 }
 
 Boolean mano_a_mejor_mano_b(Carta* cartas_a, Carta* cartas_b, int mano_size_a, int mano_size_b, Carta* cartas_comunes) {
-    Carta a_todas[mano_size_a], b_todas[mano_size_b];
+    Carta* a_todas = (Carta*) malloc(sizeof(Carta) * (mano_size_a+5));
+    Carta* b_todas = (Carta*) malloc(sizeof(Carta) * (mano_size_b+5));
     combinar_cartas(cartas_a, cartas_comunes, mano_size_a, a_todas);
     combinar_cartas(cartas_b, cartas_comunes, mano_size_b, b_todas);
 
-    int valor_a = valor_mano(a_todas, mano_size_a);
-    int valor_b = valor_mano(b_todas, mano_size_b);
+    printf("cartas_a: \n");
+    for(int i = 0; i < mano_size_a+5; i++) {
+        printf("%s", carta_to_string(&a_todas[i]));
+    }
+    printf("\n");
+
+    int valor_a = valor_mano(a_todas, mano_size_a+5);
+
+    printf("valor: %d\n", valor_a);
+
+    printf("cartas_b: \n");
+    for(int i = 0; i < mano_size_a+5; i++) {
+        printf("%s", carta_to_string(&b_todas[i]));
+    }
+    printf("\n");
+
+    int valor_b = valor_mano(b_todas, mano_size_b+5);
+
+    printf("valor: %d\n", valor_b);
+
 
     // Si la puntuación de A es mayor, gana directamente
     if(valor_a > valor_b) {
+        free(a_todas);
+        free(b_todas);
         return TRUE;
     }
     // Si la puntuación de B es mayor, A no gana
     if(valor_a < valor_b) {
+        free(a_todas);
+        free(b_todas);
         return FALSE;
     }
 
-    return desempate_por_cartas(a_todas, b_todas, mano_size_a, mano_size_b);
+    Boolean desempate = desempate_por_cartas(a_todas, b_todas, mano_size_a+5, mano_size_b+5);
+    free(a_todas);
+    free(b_todas);
+    return desempate;
 }
 
 /*

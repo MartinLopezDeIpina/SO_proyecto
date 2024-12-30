@@ -42,4 +42,6 @@ add_executable(untitled main.c
         globals.h
         DebugPrints.c
         DebugPrints.h
+        Machine/PhysicalMemory.c
+        Machine/PhysicalMemory.h
 )

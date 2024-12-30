@@ -9,5 +9,6 @@
 static Boolean debug_partida = TRUE;
 static int SALDO_NECESARIO_PARA_JUGAR_POKER = 5;
 static int INSTRUCCIONES_POR_PROCESO = 10;
+static Boolean UTILIZAR_POKER_SCHEDULER = FALSE;
 
 #endif //GLOBALS_H

@@ -32,6 +32,8 @@ PCBArray* get_procesos_candidatos_partida_poker(ProcessQueue* queue);
 Node* get_primero(ProcessQueue* queue);
 Node* get_ultimo(ProcessQueue* queue);
 
+PCB* get_proceso_listo_cola_fifo(ProcessQueue* queue);
+
 void print_queue(ProcessQueue* queue);
 
 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "globals.h"
 #include "IComponenteTemporizable.h"
 #include "ProcessQueue.h"
 #include "Machine/Machine.h"
@@ -34,7 +35,12 @@ void asignar_procesos_a_cores_ociosos(Scheduler* scheduler, int* ids_cores_ocios
         for (int i = 0; i < num_cores_ociosos; i++) {
             pcb_candidatos = get_procesos_candidatos_partida_poker(scheduler->process_queue);
             if (pcb_candidatos != NULL) {
-                PCB* ganador = jugar_partida_poker_y_get_ganador(scheduler, pcb_candidatos, ids_cores_ociosos[i]);
+                PCB* ganador;
+                if (UTILIZAR_POKER_SCHEDULER == TRUE) {
+                    ganador = jugar_partida_poker_y_get_ganador(scheduler, pcb_candidatos, ids_cores_ociosos[i]);
+                }else {
+                    ganador = get_proceso_listo_cola_fifo(scheduler->process_queue);
+                }
                 asignar_saldo_ejecucion(ganador);
                 asignar_proceso_a_machine(scheduler->machine, ids_cores_ociosos[i], ganador);
             }

@@ -207,3 +207,19 @@ PCBArray* get_procesos_candidatos_partida_poker(ProcessQueue* queue) {
 
     return resultado;
 }
+
+PCB* get_proceso_listo_cola_fifo(ProcessQueue* queue) {
+    pthread_mutex_lock(&queue->mutex);
+
+    Node* current = queue->primer_nodo;
+    while (current != NULL) {
+        if (proceso_esta_listo(current->pcb)) {
+            pthread_mutex_unlock(&queue->mutex);
+            return current->pcb;
+        }
+        current = current->next;
+    }
+
+    pthread_mutex_unlock(&queue->mutex);
+    return NULL;
+}

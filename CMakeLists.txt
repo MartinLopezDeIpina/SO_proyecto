@@ -11,9 +11,9 @@ add_executable(untitled main.c
         Temporizador.c
         PCB.c
         PCB.h
-        ProcessGenerator.c
+        Loader.c
         IComponenteTemporizable.h
-        ProcessGenerator.h
+        Loader.h
         ProcessQueue.c
         Boolean.h
         ProcessQueue.h

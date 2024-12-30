@@ -6,7 +6,7 @@
 #include "Clock.h"
 #include "Temporizador.h"
 #include "PCB.h"
-#include "ProcessGenerator.h"
+#include "Loader.h"
 #include "ProcessQueue.h"
 #include "Scheduler.h"
 #include "Machine/Machine.h"
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     ProcessQueue pq;
     init_process_queue(&pq);
 
-    ProcessGenerator pg;
+    Loader pg;
     init_process_generator(&pg, &pq);
 
     Machine machine;

@@ -2,7 +2,7 @@
 
 #include "Clock.h"
 #include "IComponenteTemporizable.h"
-#include "ProcessGenerator.h"
+#include "Loader.h"
 //
 // Created by martin on 10/25/24.
 //

@@ -6,126 +6,93 @@
 #include <pthread.h>
 #include "Core.h"
 
+#include <stdlib.h>
+
 /*
  * El objeto Core puede ser accedido por más de un hilo, por ejemplo el scheduler para asignar y quitar procesos, y el clock para notificar el tick.
  * El mutex mutex_acceso_core es para proteger el acceso al core.
  * El mutex mutex es para sincronizar la ejecución de instrucciones con los ticks del reloj.
  */
 
-void ejecutar_instruccion(Core* core) {
-    pthread_mutex_lock(&core->mutex_acceso_core);
-    ejecutar_instruccion_proceso(core -> current_process);
-    pthread_mutex_unlock(&core->mutex_acceso_core);
-}
-
 void print_estado_core(Core* core) {
     pthread_mutex_lock(&core->mutex_acceso_core);
 
-    printf("Core %d: ", core -> id_core);
-    if (core -> current_process) {
-        printear_instrucciones_ejecutadas(core -> current_process);
-    } else {
-        printf("Ocioso\n");
+    printf("Core %d:\n", core -> id_core);
+    for(int i = 0; i < core -> num_threads_core; i++) {
+        printear_instrucciones_ejecutadas_hilo(&core -> hilos[i]);
     }
-
+    printf("\n");
     pthread_mutex_unlock(&core->mutex_acceso_core);
 }
 
-void* funcion_core(void* arg) {
-    Core* core = (Core*)arg;
-
-    while(1) {
-        pthread_mutex_lock(&core->mutex);
-        pthread_cond_wait(&core->condition, &core->mutex);
-
-        Boolean core_ocioso = core_esta_ocioso(core);
-        if (core_ocioso == FALSE) {
-            ejecutar_instruccion(core);
-        }
-
-        pthread_mutex_unlock(&core->mutex);
+void init_hilos_hardware(int num_threads_core, HiloHardware* hilos) {
+    for (int i = 0; i < num_threads_core; i++) {
+        init_hilo_hardware(&hilos[i], i);
     }
-    return NULL;
 }
 
-void init_core(int id_core, Core* core) {
-    core -> current_process = NULL;
+void init_core(int id_core, Core* core, int num_threads_core) {
     core -> id_core = id_core;
 
+    core -> num_threads_core = num_threads_core;
+    core -> hilos = (HiloHardware*)malloc(num_threads_core * sizeof(HiloHardware));
+    init_hilos_hardware(num_threads_core, core -> hilos);
+
     pthread_mutex_init(&core->mutex_acceso_core, NULL);
-    pthread_create(&core->thread, NULL, funcion_core, (void*)core);
 }
 
 void notificar_tick_clock_core(Core* core) {
-    pthread_mutex_lock(&core->mutex);
     print_estado_core(core);
-    pthread_cond_signal(&core->condition);
-    pthread_mutex_unlock(&core->mutex);
-}
 
-Boolean core_esta_vacio(Core* core) {
-    pthread_mutex_lock(&core->mutex_acceso_core);
-
-    int core_esta_vacio = core -> current_process == NULL;
-
-    pthread_mutex_unlock(&core->mutex_acceso_core);
-
-    if(core_esta_vacio) {
-        return TRUE;
-    }else {
-        return FALSE;
+    for(int i = 0; i < core -> num_threads_core; i++) {
+        notificar_tick_clock_hilo(&core -> hilos[i]);
     }
 }
 
-// no usar el mutex porque ya lo usan las funciones de dentro
+// el core está ocioso si al menos uno de sus hilos está ocioso -> se puede añadir un proceso más la core
 Boolean core_esta_ocioso(Core* core) {
-    int core_esta_ocioso = core_esta_vacio(core) || proceso_ha_terminado(core -> current_process);
+    Boolean ocioso = FALSE;
 
-    if(core_esta_ocioso) {
-        return TRUE;
-    }else {
-        return FALSE;
+    for(int i = 0; i < core -> num_threads_core; i++) {
+        if(hilo_esta_ocioso(&core -> hilos[i])) {
+            ocioso = TRUE;
+            break;
+        }
     }
 
+    return ocioso;
 }
 
-Boolean proceso_core_ha_terminado(Core* core) {
-    pthread_mutex_lock(&core->mutex_acceso_core);
-    int ha_terminado = proceso_ha_terminado(core -> current_process);
-    pthread_mutex_unlock(&core->mutex_acceso_core);
-
-    if(ha_terminado) {
-        return TRUE;
-    }else {
-        return FALSE;
+void vaciar_hilos_sin_saldo_suficiente(Core* core) {
+    for(int i = 0; i < core -> num_threads_core; i++) {
+        if (hilo_esta_vacio(&core->hilos[i]) == FALSE && proceso_hilo_saldo_ejecucion_insuficiente(&core->hilos[i]) == TRUE) {
+            vaciar_hilo_y_set_estado(&core->hilos[i], LISTO);
+        }
     }
 }
 
-Boolean proceso_core_saldo_ejecucion_insuficiente(Core* core) {
-    pthread_mutex_lock(&core->mutex_acceso_core);
-    Boolean saldo_insuficiente = proceso_saldo_ejecucion_insuficiente(core -> current_process);
-    pthread_mutex_unlock(&core->mutex_acceso_core);
-
-    return saldo_insuficiente;
-}
-
-void vaciar_core(Core* core) {
-    pthread_mutex_lock(&core->mutex_acceso_core);
-    core -> current_process = NULL;
-    pthread_mutex_unlock(&core->mutex_acceso_core);
-}
-
-void vaciar_core_y_set_estado(Core* core, EstadoProceso estado) {
-    pthread_mutex_lock(&core->mutex_acceso_core);
-    set_estado_proceso(core -> current_process, estado);
-    core -> current_process = NULL;
-    pthread_mutex_unlock(&core->mutex_acceso_core);
-}
-
+// asignar el proceso al primer hilo del core disponible
 void asignar_proceso_a_core(Core* core, PCB* pcb) {
     pthread_mutex_lock(&core->mutex_acceso_core);
-    core -> current_process = pcb;
-    set_estado_proceso_ejecutando(pcb);
-    set_ultimo_core_visitado_pcb(pcb, core -> id_core);
+    for(int i = 0; i < core->num_threads_core; i ++) {
+        if(hilo_esta_ocioso(&core -> hilos[i])) {
+            asignar_proceso_a_hilo(&core -> hilos[i], pcb);
+            set_ultimo_core_visitado_pcb(pcb, core -> id_core);
+            break;
+        }
+    }
     pthread_mutex_unlock(&core->mutex_acceso_core);
 }
+
+int vaciar_hilos_terminados_core(Core* core, int* pid_procesos_terminados, int index_actual) {
+    int cuenta = 0;
+    for(int i = 0; i < core -> num_threads_core; i++) {
+        if(hilo_esta_vacio(&core -> hilos[i]) == FALSE && proceso_ha_terminado(core -> hilos[i].current_process) == TRUE) {
+            pid_procesos_terminados[index_actual + cuenta] = core -> hilos[i].current_process -> pid;
+            vaciar_hilo(&core -> hilos[i]);
+            cuenta++;
+        }
+    }
+    return cuenta;
+}
+

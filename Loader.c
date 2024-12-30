@@ -7,6 +7,7 @@
 
 #include "IComponenteTemporizable.h"
 #include "ProcessQueue.h"
+#include "globals.h"
 
 typedef struct {
     IComponenteTemporizable i_componente_temporizable;
@@ -33,7 +34,7 @@ void init_process_generator(Loader* process_generator, ProcessQueue* process_que
     process_generator -> process_queue = process_queue;
     process_generator -> ultimo_pid = 0;
 
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < NUM_PROCESOS_INICIALES; i++) {
         generar_proceso(process_generator);
     }
 }

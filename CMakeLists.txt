@@ -44,4 +44,6 @@ add_executable(untitled main.c
         DebugPrints.h
         Machine/PhysicalMemory.c
         Machine/PhysicalMemory.h
+        Machine/HiloHardware.c
+        Machine/HiloHardware.h
 )

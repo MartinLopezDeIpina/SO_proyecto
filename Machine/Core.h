@@ -4,6 +4,7 @@
 
 #ifndef CORE_H
 #define CORE_H
+#include "HiloHardware.h"
 
 #endif //CORE_H
 #include <pthread.h>
@@ -12,28 +13,18 @@
 
 typedef struct {
     int id_core;
-    PCB* current_process;
-    pthread_t thread;
-    pthread_mutex_t mutex;
-    pthread_cond_t condition;
+    int num_threads_core;
+    HiloHardware* hilos;
     pthread_mutex_t mutex_acceso_core;
 }Core;
 
-void init_core(int id_core, Core* core);
-
-void ejecutar_instruccion(Core* core);
-
-void *funcion_core(void* arg);
+void init_core(int id_core, Core* core, int num_threads_core);
 
 void notificar_tick_clock_core(Core* core);
 
-void vaciar_core(Core* core);
-void vaciar_core_y_set_estado(Core* core, EstadoProceso estado);
-
 void asignar_proceso_a_core(Core* core, PCB* pcb);
 
-Boolean proceso_core_saldo_ejecucion_insuficiente(Core* core);
-Boolean core_esta_vacio(Core* core);
-Boolean core_esta_ocioso(Core* core);
-Boolean proceso_core_ha_terminado(Core* core);
+int vaciar_hilos_terminados_core(Core* core, int* pid_procesos_terminados, int index_actual);
+void vaciar_hilos_sin_saldo_suficiente(Core* core);
 
+Boolean core_esta_ocioso(Core* core);

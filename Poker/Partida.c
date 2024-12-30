@@ -35,7 +35,7 @@ void init_partida(Partida* partida, PCBArray* candidatos, int id_core) {
     partida->baraja = (Baraja *) malloc(sizeof(Baraja));
     partida -> cartas_comunes = (Carta *) malloc(5 * sizeof(Carta));
 
-    int num_cartas_necesarias_para_jugadores = candidatos->cantidad * 2;
+    int num_cartas_necesarias_para_jugadores = candidatos->cantidad * 3;
 
     init_baraja(partida->baraja, num_cartas_necesarias_para_jugadores);
     partida->jugadores = candidatos;

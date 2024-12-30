@@ -54,12 +54,13 @@ void funcion_scheduler(Scheduler* scheduler) {
 
     incrementar_saldos_fuera_cpu(scheduler->process_queue);
 
-    int* pid_procesos_terminados = (int*)malloc(get_num_cores_machine(scheduler->machine) * sizeof(int));
+    int* pid_procesos_terminados = (int*)malloc(get_num_cores_machine(scheduler->machine) * scheduler->machine->num_threads_core * sizeof(int));
     int num_procesos_terminados = vaciar_cores_terminados(scheduler->machine, pid_procesos_terminados);
 
     vaciar_cores_sin_saldo_suficiente(scheduler->machine);
 
     eliminar_procesos_terminados(scheduler->process_queue);
+
 
     int* ids_cores_ociosos = (int*)malloc(get_num_cores_machine(scheduler->machine) * sizeof(int));
     int num_cores_ociosos = get_ids_cores_ociosos(scheduler->machine, ids_cores_ociosos);

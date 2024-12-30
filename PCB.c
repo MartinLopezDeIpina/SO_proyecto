@@ -25,7 +25,7 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> estado = LISTO;
     pcb -> indice_ultimo_core_visitado = -1;
 
-    pcb -> saldo = 5;
+    pcb -> saldo = 12;
     pcb -> saldo_ejecucion = 0;
     pcb -> agresividad = float_aleatorio_entre_dos_numeros(0.0f, 0.25f);
     pcb -> min_saldo_entrar_core = 3;

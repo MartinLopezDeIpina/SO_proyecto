@@ -6,9 +6,10 @@
 #define GLOBALS_H
 #include "Boolean.h"
 
-static Boolean debug_partida = TRUE;
+static Boolean debug_partida = FALSE;
 static int SALDO_NECESARIO_PARA_JUGAR_POKER = 5;
 static int INSTRUCCIONES_POR_PROCESO = 10;
-static Boolean UTILIZAR_POKER_SCHEDULER = FALSE;
+static Boolean UTILIZAR_POKER_SCHEDULER = TRUE;
+static Boolean NUM_PROCESOS_INICIALES = 15;
 
 #endif //GLOBALS_H

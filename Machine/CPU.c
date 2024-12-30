@@ -7,7 +7,7 @@
 
 #include "CPU.h"
 
-void init_CPU(int id_cpu, CPU* cpu, int num_cores) {
+void init_CPU(int id_cpu, CPU* cpu, int num_cores, int num_threads_core) {
     cpu -> id_cpu = id_cpu;
     cpu -> num_cores = num_cores;
     cpu -> cores = (Core*)malloc(num_cores * sizeof(Core));
@@ -15,7 +15,7 @@ void init_CPU(int id_cpu, CPU* cpu, int num_cores) {
     for (int i = 0; i < num_cores; i++) {
         printf("iniciando core %d\n", i);
         int id_core = id_cpu * num_cores + i;
-        init_core(id_core, &cpu->cores[i]);
+        init_core(id_core, &cpu->cores[i], num_threads_core);
     }
 }
 
@@ -36,23 +36,16 @@ int get_cores_ociosos_CPU(CPU* cpu, int* array_ids, int index_actual) {
    return cont;
 }
 
-int vaciar_cpus_terminados(CPU* cpu, int* pid_procesos_terminados, int index_actual){
-    int cuenta = 0;
+int vaciar_cpus_terminados(CPU* cpu, int* pid_procesos_terminados, int total_procesos_terminados){
     for (int i = 0; i < cpu->num_cores; i++) {
-        if (core_esta_vacio(&cpu->cores[i]) == FALSE && proceso_core_ha_terminado(&cpu->cores[i]) == TRUE) {
-            pid_procesos_terminados[index_actual + cuenta] = cpu->cores[i].current_process -> pid;
-            cuenta++;
-            vaciar_core(&cpu->cores[i]);
-        }
+        total_procesos_terminados += vaciar_hilos_terminados_core(&cpu->cores[i], pid_procesos_terminados, total_procesos_terminados);
     }
-    return cuenta;
+    return total_procesos_terminados;
 }
 
 void vaciar_cpus_sin_saldo_suficiente(CPU* cpu) {
     for (int i = 0; i < cpu->num_cores; i++) {
-        if (core_esta_vacio(&cpu->cores[i]) == FALSE && proceso_core_saldo_ejecucion_insuficiente(&cpu->cores[i]) == TRUE) {
-            vaciar_core_y_set_estado(&cpu->cores[i], LISTO);
-        }
+        vaciar_hilos_sin_saldo_suficiente(&cpu->cores[i]);
     }
 }
 

@@ -30,7 +30,7 @@ void init_machine(Machine* machine, int num_CPUs, int num_cores_CPU, int num_thr
 
     for (int i = 0; i < num_CPUs; i++) {
         printf("iniciando cpu %d\n", i);
-        init_CPU(i,  &machine->cpus[i], num_cores_CPU);
+        init_CPU(i,  &machine->cpus[i], num_cores_CPU, num_threads_core);
     }
 }
 

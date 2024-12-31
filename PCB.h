@@ -8,6 +8,7 @@
 #include "Poker/Carta.h"
 #include "utils.h"
 #include <pthread.h>
+#include <stdint.h>
 
 typedef enum {
     LISTO,
@@ -35,6 +36,12 @@ typedef struct {
     int apuesta_total_partida;
 
 } PCB;
+
+typedef struct {
+  uint32_t* code;
+  uint32_t* data;
+  uint32_t* pgb;
+}mm;
 
 typedef struct {
     PCB** pcbs;

@@ -46,4 +46,6 @@ add_executable(untitled main.c
         Machine/PhysicalMemory.h
         Machine/HiloHardware.c
         Machine/HiloHardware.h
+        Machine/MMU.c
+        Machine/MMU.h
 )

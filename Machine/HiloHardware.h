@@ -4,8 +4,12 @@
 
 #ifndef HILOHARDWARE_H
 #define HILOHARDWARE_H
+#include <stdint.h>
+
 #include "../PCB.h"
 #include <bits/pthreadtypes.h>
+
+#include "MMU.h"
 
 typedef struct {
     // Mentras que el id del core es absoluto, el id del hilo es relativo al core en el que se encuentra.
@@ -17,6 +21,11 @@ typedef struct {
     pthread_mutex_t mutex_acceso_hilo;
 
     PCB* current_process;
+
+    uint32_t* PTBR;
+    MMU mmu;
+    uint32_t* PC;
+    uint32_t* RI;
 }HiloHardware;
 
 void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo);

@@ -15,12 +15,16 @@ static Boolean NUM_PROCESOS_INICIALES = 15;
 // 2^24 = 16777216
 static int NUM_DIRECCIONES = 16777216;
 
-// 4096 * 1024 * 4 = 16777216
+// en celdas de 4 bytes
 static int TAMANIO_PAGINA = 4096;
-static int NUM_PAGINAS = 1024;
+
+// 4096 x 4096 = 16777216
+static int NUM_PAGINAS = 4096;
 // 1000 es 4096 en hexadecimal, dir de primera página física después de tabla de páginas.
 __uint32_t DIR_PRIMERA_PAGINA = 0x1000;
 
 int SIZE_TLB = 16;
+
+static char* PATH_FICHEROS_PROCESOS = "prometheus/";
 
 #endif //GLOBALS_H

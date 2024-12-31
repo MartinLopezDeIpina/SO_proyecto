@@ -31,6 +31,9 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> min_saldo_entrar_core = 3;
     pcb -> cartas = (Carta*)malloc(sizeof(Carta) * prioridad);
 
+    mm* mm_pcb = (mm*)malloc(sizeof(mm));
+    pcb->mm_pcb = mm_pcb;
+
     pthread_mutex_init(&pcb -> mutex, NULL);
 }
 

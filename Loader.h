@@ -7,15 +7,17 @@
 
 #include "IComponenteTemporizable.h"
 #include "ProcessQueue.h"
+#include "Machine/PhysicalMemory.h"
 
 typedef struct {
     IComponenteTemporizable i_componente_temporizable;
     ProcessQueue* process_queue;
+    PhysicalMemory* pm;
     int ultimo_pid;
 }Loader;
 
-void generar_proceso(Loader* process_generator);
+void generar_proceso(Loader* loader);
 void ejecutar_funcion_temporizador(void* self);
-void init_process_generator(Loader* process_generator, ProcessQueue* process_queue);
+void init_loader(Loader* process_generator, ProcessQueue* process_queue, PhysicalMemory* pm);
 
 #endif //PROCESSGENERATOR_H

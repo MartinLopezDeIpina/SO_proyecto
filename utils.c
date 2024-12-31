@@ -2,6 +2,7 @@
 // Created by martin on 12/25/24.
 //
 
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "Boolean.h"
@@ -24,4 +25,27 @@ Boolean evento_con_probabilidad(float probabilidad) {
     float numero_aleatorio = (float)rand() / (float)RAND_MAX;
 
     return (numero_aleatorio < probabilidad) ? TRUE : FALSE;
+}
+
+long contar_lineas_fichero(FILE* file) {
+    long num_lineas = 0;
+    char c;
+
+    // Guardar la posición actual
+    long pos_inicial = ftell(file);
+
+    // Ir al inicio del archivo
+    fseek(file, 0, SEEK_SET);
+
+    // Contar líneas
+    while ((c = fgetc(file)) != EOF) {
+        if (c == '\n') {
+            num_lineas++;
+        }
+    }
+
+    // Volver a la posición original
+    fseek(file, pos_inicial, SEEK_SET);
+
+    return num_lineas;
 }

@@ -11,5 +11,6 @@ typedef struct {
 }PhysicalMemory;
 
 void init_physical_memory(PhysicalMemory* pm);
+uint32_t* get_entrada_tabla_paginas_para_nuevo_proceso(PhysicalMemory* pm, int num_paginas_proceso);
 
 #endif //PHYSICALMEMORY_H

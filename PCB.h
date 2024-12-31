@@ -19,6 +19,12 @@ typedef enum {
 } EstadoProceso;
 
 typedef struct {
+  uint32_t* code;
+  uint32_t* data;
+  uint32_t* pgb;
+}mm;
+
+typedef struct {
     int pid;
     int prioridad;
     int num_instruccion_actual;
@@ -35,13 +41,10 @@ typedef struct {
     Carta* cartas;
     int apuesta_total_partida;
 
+    mm* mm_pcb;
+
 } PCB;
 
-typedef struct {
-  uint32_t* code;
-  uint32_t* data;
-  uint32_t* pgb;
-}mm;
 
 typedef struct {
     PCB** pcbs;

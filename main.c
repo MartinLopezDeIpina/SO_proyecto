@@ -33,8 +33,11 @@ int main(int argc, char* argv[]) {
     ProcessQueue pq;
     init_process_queue(&pq);
 
+    PhysicalMemory pm;
+    init_physical_memory(&pm);
+
     Loader pg;
-    init_process_generator(&pg, &pq);
+    init_loader(&pg, &pq, &pm);
 
     Machine machine;
     init_machine(&machine, NUM_CPUS, NUM_CORES_CPU, NUM_THREADS_CORE);

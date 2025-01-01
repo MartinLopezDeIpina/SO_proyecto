@@ -27,8 +27,8 @@ Boolean evento_con_probabilidad(float probabilidad) {
     return (numero_aleatorio < probabilidad) ? TRUE : FALSE;
 }
 
-long contar_lineas_fichero(FILE* file) {
-    long num_lineas = 0;
+int contar_lineas_fichero(FILE* file) {
+    int num_lineas = 0;
     char c;
 
     // Guardar la posición actual

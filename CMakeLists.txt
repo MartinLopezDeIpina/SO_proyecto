@@ -49,3 +49,5 @@ add_executable(untitled main.c
         Machine/MMU.c
         Machine/MMU.h
 )
+
+add_definitions(-DPROJECT_ROOT="${CMAKE_SOURCE_DIR}")

@@ -21,9 +21,9 @@ static int TAMANIO_PAGINA = 4096;
 // 4096 x 4096 = 16777216
 static int NUM_PAGINAS = 4096;
 // 1000 es 4096 en hexadecimal, dir de primera página física después de tabla de páginas.
-__uint32_t DIR_PRIMERA_PAGINA = 0x1000;
+static __uint32_t DIR_PRIMERA_PAGINA = 0x1000;
 
-int SIZE_TLB = 16;
+static int SIZE_TLB = 16;
 
 static char* PATH_FICHEROS_PROCESOS = "prometheus/";
 

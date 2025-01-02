@@ -79,6 +79,7 @@ Boolean proceso_saldo_suficiente_para_entrar_core(PCB* pcb);
 void set_estado_proceso(PCB* pcb, EstadoProceso estado);
 void set_estado_proceso_listo(PCB* pcb);
 void set_estado_proceso_ejecutando(PCB* pcb);
+void set_estado_proceso_terminado(PCB* pcb);
 void set_ultimo_core_visitado_pcb(PCB* pcb, int id_core);
 
 void incrementar_saldo_ejecucion(PCB* pcb, int saldo);

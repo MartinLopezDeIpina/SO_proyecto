@@ -59,6 +59,15 @@ void escribir_direccion_en_tabla_paginas(PhysicalMemory* pm, uint32_t dir_pag_ta
    pthread_mutex_unlock(&pm->mutex);
 }
 
+
+void escribir_valor_en_puntero_a_direccion(PhysicalMemory* pm, uint32_t* puntero_a_direccion, uint32_t valor) {
+    pthread_mutex_lock(&pm->mutex);
+
+    *puntero_a_direccion = valor;
+
+    pthread_mutex_unlock(&pm->mutex);
+}
+
 void escribir_valor_en_direccion(PhysicalMemory* pm, uint32_t dir, uint32_t valor) {
     pthread_mutex_lock(&pm->mutex);
 
@@ -68,13 +77,26 @@ void escribir_valor_en_direccion(PhysicalMemory* pm, uint32_t dir, uint32_t valo
     pthread_mutex_unlock(&pm->mutex);
 }
 
+/*
+ * Dada una dirección de memoria, devuelve un puntero al array de memoria usando la dirección comom índice.
+ */
 uint32_t* get_puntero_a_direccion_memoria(PhysicalMemory* pm, uint32_t dir) {
     pthread_mutex_lock(&pm->mutex);
 
-    uint32_t* puntero = &pm->memoria[dir];
+    uint32_t* puntero = &(pm->memoria[dir]);
 
     pthread_mutex_unlock(&pm->mutex);
     return puntero;
+}
+
+// usar la función para lockear el mutex en lugar de acceder directamente al puntero.
+uint32_t get_valor_en_puntero_a_direccion(PhysicalMemory* pm, uint32_t* puntero_a_direccion) {
+    pthread_mutex_lock(&pm->mutex);
+
+    uint32_t valor = *puntero_a_direccion;
+
+    pthread_mutex_unlock(&pm->mutex);
+    return valor;
 }
 
 
@@ -113,5 +135,40 @@ uint32_t get_entrada_tabla_paginas_para_nuevo_proceso(PhysicalMemory* pm, int nu
 
     pthread_mutex_unlock(&pm->mutex);
     return dir_primera_pagina;
+}
+
+void liberar_todas_las_direcciones_de_memoria_de_pagina(PhysicalMemory* pm, uint32_t dir_fisica_marco) {
+    pthread_mutex_lock(&pm->mutex);
+
+    for (int i = 0; i < TAMANIO_PAGINA; i++) {
+        pm->memoria[dir_fisica_marco + i] = 0;
+    }
+
+    pthread_mutex_unlock(&pm->mutex);
+}
+
+void liberar_entrada_tabla_paginas(PhysicalMemory* pm, uint32_t dir_fisica_entrada_tabla_paginas) {
+    pthread_mutex_lock(&pm->mutex);
+
+    pm->memoria[dir_fisica_entrada_tabla_paginas] = 0;
+
+    pthread_mutex_unlock(&pm->mutex);
+}
+
+void liberar_memoria_paginas(PhysicalMemory* pm, uint32_t dir_fisica_marco, int num_paginas) {
+    uint32_t dir_primera_pagina_tabla;
+    for (int i = 0; i < NUM_PAGINAS; i++) {
+        if (pm->memoria[i] == dir_fisica_marco) {
+            dir_primera_pagina_tabla = i;
+            break;
+        }
+    }
+
+    for (int i = 0; i < num_paginas; i++) {
+        uint32_t dir_fisica_entrada_tabla_paginas = dir_primera_pagina_tabla + i;
+        uint32_t dir_pag = pm->memoria[dir_fisica_entrada_tabla_paginas];
+        liberar_todas_las_direcciones_de_memoria_de_pagina(pm, dir_pag);
+        liberar_entrada_tabla_paginas(pm, dir_fisica_entrada_tabla_paginas);
+    }
 }
 

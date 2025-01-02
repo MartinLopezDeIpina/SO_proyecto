@@ -133,6 +133,9 @@ void set_estado_proceso_ejecutando(PCB* pcb) {
 void set_estado_proceso_listo(PCB* pcb) {
     set_estado_proceso(pcb, LISTO);
 }
+void set_estado_proceso_terminado(PCB* pcb) {
+    set_estado_proceso(pcb, TERMINADO);
+}
 
 void printear_instrucciones_ejecutadas(PCB* pcb) {
     pthread_mutex_lock(&pcb -> mutex);

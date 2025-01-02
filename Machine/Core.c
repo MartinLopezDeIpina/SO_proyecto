@@ -74,13 +74,21 @@ void vaciar_hilos_sin_saldo_suficiente(Core* core) {
 // asignar el proceso al primer hilo del core disponible
 void asignar_proceso_a_core(Core* core, PCB* pcb) {
     pthread_mutex_lock(&core->mutex_acceso_core);
+
+    int hilo_mayor_afinidad = -1;
+    int num_entradas_tlb_proceso = -1;
     for(int i = 0; i < core->num_threads_core; i ++) {
         if(hilo_esta_ocioso(&core -> hilos[i])) {
-            asignar_proceso_a_hilo(&core -> hilos[i], pcb);
-            set_ultimo_core_visitado_pcb(pcb, core -> id_core);
-            break;
+            int afinidad_con_hilo = get_afinidad_hilo_con_proceso(&core->hilos[i], pcb->pid);
+            if(afinidad_con_hilo > num_entradas_tlb_proceso) {
+                hilo_mayor_afinidad = i;
+            }
         }
     }
+
+    asignar_proceso_a_hilo(&core -> hilos[hilo_mayor_afinidad], pcb);
+    set_ultimo_core_visitado_pcb(pcb, core -> id_core);
+
     pthread_mutex_unlock(&core->mutex_acceso_core);
 }
 

@@ -26,9 +26,11 @@ void init_entrada_TLB(EntradaTLB* entrada, int pid_proceso, uint32_t dir_pag_ló
 void init_mmu(MMU* mmu, PhysicalMemory* pm) {
     // En caso de que no esté la página, -1 se considera como un fallo de página.
     for (int i = 0; i < SIZE_TLB; i++) {
-        mmu->TLB[i]->pid_proceso = -1;
-        mmu->TLB[i]->dir_pag_lógica = -1;
-        mmu->TLB[i]->dir_pag_física = -1;
+        EntradaTLB* entrada = (EntradaTLB*)malloc(sizeof(EntradaTLB));
+        entrada -> pid_proceso = -1;
+        entrada -> dir_pag_lógica = -1;
+        entrada -> dir_pag_física = -1;
+        mmu->TLB[i] = entrada;
     }
     mmu->pm = pm;
     pthread_mutex_init(&mmu->mutex, NULL);
@@ -77,6 +79,20 @@ void set_entrada_TLB(MMU* mmu, int pid_proceso, uint32_t dir_pag_lógica, uint32
     pthread_mutex_unlock(&mmu->mutex);
 }
 
+void liberar_entradas_proceso(MMU* mmu, int pid_proceso) {
+    pthread_mutex_lock(&mmu->mutex);
+
+    for (int i = 0; i < SIZE_TLB; i++) {
+        if (mmu->TLB[i]->pid_proceso == pid_proceso) {
+            mmu->TLB[i]->pid_proceso = -1;
+            mmu->TLB[i]->dir_pag_lógica = -1;
+            mmu->TLB[i]->dir_pag_física = -1;
+        }
+    }
+
+    pthread_mutex_unlock(&mmu->mutex);
+}
+
 /*
  * Devuelve un puntero a la dirección de memoria física correspondiente a la dirección lógica del proceso indicado.
  * Si la dirección lógica del marco está en la TLB, se calcula directamente la dirección física.
@@ -104,7 +120,7 @@ uint32_t* get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t
     bool fallo_pagina = dir_fisica_marco == -1;
     // Acceder a la tabla de páginas para obtener la dirección física de la página.
     if(fallo_pagina) {
-        dir_fisica_marco = *PTBR;
+        dir_fisica_marco = PTBR;
 
         set_entrada_TLB(mmu, pid_proceso, dir_logica_pagina, dir_fisica_marco);
     }
@@ -119,6 +135,16 @@ uint32_t* get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t
 
     uint32_t dir_fisica = dir_fisica_marco + offset_dentro_de_pagina;
     return get_puntero_a_direccion_memoria(mmu->pm, dir_fisica);
+}
+
+int get_afinidad_mmu_tlb_con_proceso(MMU* mmu, int pid) {
+    int cuenta = 0;
+    for (int i = 0; i < SIZE_TLB; i++) {
+        if (mmu->TLB[i]->pid_proceso == pid) {
+            cuenta++;
+        }
+    }
+    return cuenta;
 }
 
 

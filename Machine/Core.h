@@ -18,7 +18,7 @@ typedef struct {
     pthread_mutex_t mutex_acceso_core;
 }Core;
 
-void init_core(int id_core, Core* core, int num_threads_core);
+void init_core(int id_core, Core* core, PhysicalMemory* pm, int num_threads_core);
 
 void notificar_tick_clock_core(Core* core);
 

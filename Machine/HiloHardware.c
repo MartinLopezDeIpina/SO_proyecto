@@ -8,21 +8,111 @@
 #include <stdio.h>
 
 #include "../Boolean.h"
+#include "PhysicalMemory.h"
 
-// Primero busca la dirección de la página en la tabla de páginas, si no la encuentra la busca en la memoria física y la asigna a la tabla de páginas.
+// Sacar la dirección física usando la MMU en el hilo hardware.
 uint32_t get_instruccion_proceso(HiloHardware* hilo) {
     uint32_t* dir_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, hilo->PC,hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
     return *dir_fisica;
 }
 
-void ejecutar_funcion_instruccion(uint32_t instruccion) {
-   //todo
+uint32_t get_registro(HiloHardware* hilo, int num_registro) {
+    return hilo->registros[num_registro];
+}
+uint32_t set_registro(HiloHardware* hilo, int num_registro, uint32_t valor) {
+    hilo->registros[num_registro] = valor;
+}
+
+void ejecutar_funcion_ld(HiloHardware* hilo, uint32_t instruccion) {
+    // Obtener el segundo dígito
+    int num_registro = (instruccion & 0x0F000000) >> 24;
+    uint32_t dir_memoria = instruccion & 0x00FFFFFF;
+
+    uint32_t* puntero_memoria_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
+    uint32_t valor = get_valor_en_puntero_a_direccion(hilo->mmu->pm, puntero_memoria_fisica);
+
+    hilo->registros[num_registro] = valor;
+}
+
+void ejecutar_funcion_add(HiloHardware* hilo, uint32_t instruccion) {
+    uint32_t registro_destino = (instruccion & 0x0F000000) >> 24;
+    uint32_t registro_fuente1 = (instruccion & 0x00F00000) >> 20;
+    uint32_t registro_fuente2 = (instruccion & 0x000F0000) >> 16;
+
+    uint32_t suma = hilo->registros[registro_fuente1] + hilo->registros[registro_fuente2];
+
+    hilo->registros[registro_destino] = suma;
+}
+
+void ejecutar_funcion_st(HiloHardware* hilo, uint32_t instruccion) {
+    uint32_t num_registro = (instruccion & 0x0F000000) >> 24;
+    uint32_t dir_memoria = instruccion & 0x00FFFFFF;
+
+    uint32_t* puntero_memoria_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
+    uint32_t valor = hilo->registros[num_registro];
+
+    // usar la función para lockear el mutex en lugar de acceder directamente al puntero.
+    escribir_valor_en_puntero_a_direccion(hilo->mmu->pm, puntero_memoria_fisica, valor);
+}
+
+void limpiar_registros_proceso(HiloHardware* hilo, int pid) {
+    for(int i = 0; i < 16; i++) {
+        hilo->registros[i] = -1;
+    }
+    hilo -> PC = -1;
+    hilo -> IR = -1;
+
+    liberar_entradas_proceso(hilo->mmu, pid);
+}
+
+void liberar_todas_las_paginas_proceso(HiloHardware* hilo) {
+    int num_instrucciones_text = hilo->current_process->mm_pcb->data - hilo->current_process->mm_pcb->code;
+    // data_addr / tamanio_pagina redondeado hacia arriba
+    int num_pags_text = (num_instrucciones_text + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+
+    // cuando se llame a la instrucción exit PC siempre estará en la última dirección lógica.
+    int num_instrucciones_data = hilo->PC - *hilo->current_process->mm_pcb->data;
+    int num_pags_data = (num_instrucciones_data + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+
+    int num_pags_totales = num_pags_text + num_pags_data;
+
+    liberar_memoria_paginas(hilo->mmu->pm, *hilo->PTBR, num_pags_totales);
+}
+
+void ejecutar_funcion_exit(HiloHardware* hilo, uint32_t instruccion) {
+
+    liberar_todas_las_paginas_proceso(hilo);
+
+    limpiar_registros_proceso(hilo, hilo->current_process->pid);
+
+    // El scheduler se encarga de eliminar el proceso de la cola de procesos.
+    set_estado_proceso_terminado(hilo->current_process);
+}
+
+void ejecutar_funcion_instruccion(HiloHardware* hilo, uint32_t instruccion) {
+    hilo->IR = instruccion;
+
+    // obtener el primer dígito con una máscara y desplazando 28 bits -> cada dígito hexadecimal son 4 bits
+    uint32_t primer_digito = (instruccion & 0xF0000000) >> 28;
+
+    switch(primer_digito) {
+        case(0):
+            ejecutar_funcion_ld(hilo, instruccion);
+        case(1):
+            ejecutar_funcion_st(hilo, instruccion);
+        case(2):
+            ejecutar_funcion_add(hilo, instruccion);
+        case(0xF):
+            ejecutar_funcion_exit(hilo, instruccion);
+        default:
+            printf("error: instrucción %X no válida\n", primer_digito);
+    }
 }
 
 void ejecutar_instruccion(HiloHardware* hilo) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);
     uint32_t instruccion = get_instruccion_proceso(hilo);
-    ejecutar_funcion_instruccion(instruccion);
+    ejecutar_funcion_instruccion(hilo, instruccion);
     avanzar_ejecucion_proceso(hilo -> current_process);
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);
 }
@@ -83,6 +173,7 @@ void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo, PhysicalMemory
     }
     MMU* mmu = malloc(sizeof(MMU));
     init_mmu(mmu, pm);
+    hilo_hardware->mmu = mmu;
 
     pthread_mutex_init(&hilo_hardware->mutex_acceso_hilo, NULL);
     pthread_mutex_init(&hilo_hardware->mutex, NULL);
@@ -120,11 +211,10 @@ void vaciar_hilo_y_set_estado(HiloHardware* hilo, EstadoProceso estado) {
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);
 }
 
-void asignar_proceso_a_hilo(HiloHardware* hilo, PCB* pcb) {
-    pthread_mutex_lock(&hilo->mutex_acceso_hilo);
-    hilo -> current_process = pcb;
-
-    //Cargar los registros del proceso en el hilo, en una simulación más realista estarían en la memoria física.
+/*
+ * Cargar los registros del objeto PCB en el hilo, en una simulación más realista estarían en la memoria física.
+ */
+void cargar_registros_proceso_en_hilo(HiloHardware* hilo, PCB* pcb) {
     hilo -> PC = pcb->estado_ejecucion_proceso->PC;
     hilo -> IR = pcb->estado_ejecucion_proceso->IR;
     hilo -> PTBR = pcb->mm_pcb->pgb;
@@ -132,7 +222,17 @@ void asignar_proceso_a_hilo(HiloHardware* hilo, PCB* pcb) {
         hilo -> registros[i] = pcb->estado_ejecucion_proceso->registros[i];
         hilo -> pid_registros[i] = pcb->pid;
     }
+}
+
+void asignar_proceso_a_hilo(HiloHardware* hilo, PCB* pcb) {
+    pthread_mutex_lock(&hilo->mutex_acceso_hilo);
+    hilo -> current_process = pcb;
+    hilo -> PTBR = pcb -> mm_pcb -> pgb;
 
     set_estado_proceso_ejecutando(pcb);
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);
+}
+
+int get_afinidad_hilo_con_proceso(HiloHardware* hilo, int pid) {
+    return get_afinidad_mmu_tlb_con_proceso(hilo->mmu, pid);
 }

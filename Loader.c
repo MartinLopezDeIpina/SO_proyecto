@@ -27,8 +27,10 @@ FILE* get_file_proceso(Loader* loader, int pid) {
     return file;
 }
 
+// todo: modificar esto y en otros sitios donde se calcula la cantidad de instrucciones para que se saque con el exit en lugar de con la dirección de comienzo de data.
+
 void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader* loader, PCB* pcb) {
-    FILE* file = get_file_proceso(loader, loader -> ultimo_pid + 1);
+    FILE* file = get_file_proceso(loader, loader -> ultimo_pid);
     // las dos primeras líneas no son instrucciones
     int num_instrucciones = contar_lineas_fichero(file) - 2;
 
@@ -58,14 +60,14 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     int num_instrucciones_totales = num_instrucciones_text + num_instrucciones_data;
     pcb->num_instrucciones = num_instrucciones_text;
 
-    pcb->mm_pcb->code = (uint32_t*)text_addr;
-    pcb->mm_pcb->data = (uint32_t*)data_addr;
+    pcb->mm_pcb->code = &text_addr;
+    pcb->mm_pcb->data = &data_addr;
 
     uint32_t dir_primera_entrada_tabla_paginas = get_entrada_tabla_paginas_para_nuevo_proceso(loader->pm, num_pags_totales);
-    pcb->mm_pcb->pgb = get_puntero_a_direccion_memoria(loader->pm, dir_primera_entrada_tabla_paginas);
+    pcb->mm_pcb->pgb = *get_puntero_a_direccion_memoria(loader->pm, dir_primera_entrada_tabla_paginas);
 
     int dir_logica_actual = text_addr;
-    uint32_t dir_fisica_actual = dir_primera_entrada_tabla_paginas;
+    uint32_t dir_fisica_actual = pcb->mm_pcb->pgb;
     int indice_pagina_actual = 0;
     // Leer y escribir instrucciones de text
     for (int i = 0; i < num_instrucciones_text; i++) {
@@ -87,8 +89,10 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     indice_pagina_actual++;
     int indice_pagina_codigo_actual = 0;
     int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
-    uint32_t dir_debug = loader->pm->memoria[indice_tabla_paginas];
     dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
+    if(pcb -> pid == 4){
+        printf("debug\n");
+    }
     for(int i = 0; i < num_instrucciones_data; i++) {
         uint32_t valor;
         fscanf(file, "%X", &valor);
@@ -96,6 +100,7 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         //Si se llega al final de la página, se pasa a la siguiente
         if(dir_logica_actual >= data_addr + TAMANIO_PAGINA * (indice_pagina_codigo_actual + 1)) {
             indice_pagina_actual++;
+            indice_pagina_codigo_actual++;
             int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
             dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
         }

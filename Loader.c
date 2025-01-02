@@ -48,7 +48,7 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
 
     int num_instrucciones_text = data_addr - text_addr;
     // data_addr / tamanio_pagina redondeado hacia arriba
-    int num_pags_text = (data_addr + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+    int num_pags_text = (num_instrucciones_text + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
 
     int num_instrucciones_data = num_instrucciones - data_addr;
     int num_pags_data = (num_instrucciones_data + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
@@ -61,12 +61,12 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     pcb->mm_pcb->data = (uint32_t*)malloc(sizeof(uint32_t));
     *(pcb->mm_pcb->data) = data_addr;
 
-    int32_t dir_primera_entrada_tabla_paginas = get_entrada_tabla_paginas_para_nuevo_proceso(loader->pm, num_pags_totales);
+    uint32_t dir_primera_entrada_tabla_paginas = get_entrada_tabla_paginas_para_nuevo_proceso(loader->pm, num_pags_totales);
 
-    pcb->mm_pcb->pgb = loader->pm->memoria[dir_primera_entrada_tabla_paginas];
+    pcb->mm_pcb->pgb = get_puntero_a_direccion_memoria(loader->pm, dir_primera_entrada_tabla_paginas);
 
     int dir_logica_actual = text_addr;
-    int32_t dir_fisica_actual = pcb->mm_pcb->pgb;
+    uint32_t dir_fisica_actual = *pcb->mm_pcb->pgb;
     int indice_pagina_actual = 0;
     // Leer y escribir instrucciones de text
     for (int i = 0; i < num_instrucciones_text; i++) {
@@ -80,14 +80,14 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         if(dir_logica_actual >= text_addr + TAMANIO_PAGINA * (indice_pagina_actual + 1)) {
             indice_pagina_actual++;
             int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
-            dir_fisica_actual = loader->pm->memoria[indice_tabla_paginas];
+            dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
         }
     }
     // Pasar a la siguiente página porque text y data están separados
     indice_pagina_actual++;
     int indice_pagina_codigo_actual = 0;
     int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
-    dir_fisica_actual = loader->pm->memoria[indice_tabla_paginas];
+    dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
     for(int i = 0; i < num_instrucciones_data; i++) {
         uint32_t valor;
 
@@ -100,7 +100,7 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         if(dir_logica_actual >= data_addr + TAMANIO_PAGINA * (indice_pagina_codigo_actual + 1)) {
             indice_pagina_actual++;
             int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
-            dir_fisica_actual = loader->pm->memoria[indice_tabla_paginas];
+            dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
         }
     }
 

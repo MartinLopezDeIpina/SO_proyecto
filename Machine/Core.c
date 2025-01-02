@@ -25,18 +25,18 @@ void print_estado_core(Core* core) {
     pthread_mutex_unlock(&core->mutex_acceso_core);
 }
 
-void init_hilos_hardware(int num_threads_core, HiloHardware* hilos) {
+void init_hilos_hardware(int num_threads_core, HiloHardware* hilos, PhysicalMemory* pm) {
     for (int i = 0; i < num_threads_core; i++) {
-        init_hilo_hardware(&hilos[i], i);
+        init_hilo_hardware(&hilos[i], i, pm);
     }
 }
 
-void init_core(int id_core, Core* core, int num_threads_core) {
+void init_core(int id_core, Core* core, PhysicalMemory* pm, int num_threads_core) {
     core -> id_core = id_core;
 
     core -> num_threads_core = num_threads_core;
     core -> hilos = (HiloHardware*)malloc(num_threads_core * sizeof(HiloHardware));
-    init_hilos_hardware(num_threads_core, core -> hilos);
+    init_hilos_hardware(num_threads_core, core -> hilos, pm);
 
     pthread_mutex_init(&core->mutex_acceso_core, NULL);
 }

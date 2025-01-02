@@ -9,6 +9,9 @@
 #include "utils.h"
 #include <pthread.h>
 #include <stdint.h>
+#include <stdlib.h>
+
+#include "Machine/MMU.h"
 
 typedef enum {
     LISTO,
@@ -19,10 +22,20 @@ typedef enum {
 } EstadoProceso;
 
 typedef struct {
+  // Apuntan a la dirección virtual del comienzo de cada segmento -> un entero que representa la dirección virtual
   uint32_t* code;
   uint32_t* data;
+  // Apunta a la dirección física de la tabla de páginas -> un entero dentro del array de direcciones físicas que representa la dirección física de la primera página del segmento.
   uint32_t* pgb;
 }mm;
+
+typedef struct {
+    int registros[16];
+    int PC;
+    int IR;
+}EstadoEjecucionProceso;
+
+void init_estado_ejecucion_proceso(EstadoEjecucionProceso* estado_ejecucion_proceso);
 
 typedef struct {
     int pid;
@@ -42,6 +55,7 @@ typedef struct {
     int apuesta_total_partida;
 
     mm* mm_pcb;
+    EstadoEjecucionProceso* estado_ejecucion_proceso;
 
 } PCB;
 
@@ -53,7 +67,7 @@ typedef struct {
 PCBArray* shallow_copy_pcb_array(PCBArray* original);
 
 void init_pcb(PCB* pcb, int pid, int prioridad);
-void ejecutar_instruccion_proceso(PCB* pcb);
+void avanzar_ejecucion_proceso(PCB* pcb);
 void printear_instrucciones_ejecutadas(PCB* pcb);
 
 Boolean proceso_esta_en_estado(PCB* pcb, EstadoProceso estado);

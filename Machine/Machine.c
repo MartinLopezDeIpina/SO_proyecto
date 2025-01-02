@@ -21,7 +21,7 @@ void ejecutar_funcion_temporizador_machine(void* self) {
     funcion_machine(machine);
 }
 
-void init_machine(Machine* machine, int num_CPUs, int num_cores_CPU, int num_threads_core){
+void init_machine(Machine* machine, PhysicalMemory* pm, int num_CPUs, int num_cores_CPU, int num_threads_core){
     machine -> i_componente_temporizable.ejecutar_funcion_temporizador = ejecutar_funcion_temporizador_machine;
     machine -> num_CPUs = num_CPUs;
     machine -> num_cores_CPU = num_cores_CPU;
@@ -30,7 +30,7 @@ void init_machine(Machine* machine, int num_CPUs, int num_cores_CPU, int num_thr
 
     for (int i = 0; i < num_CPUs; i++) {
         printf("iniciando cpu %d\n", i);
-        init_CPU(i,  &machine->cpus[i], num_cores_CPU, num_threads_core);
+        init_CPU(i,  &machine->cpus[i],pm, num_cores_CPU, num_threads_core);
     }
 }
 

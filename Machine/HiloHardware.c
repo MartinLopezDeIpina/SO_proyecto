@@ -9,9 +9,21 @@
 
 #include "../Boolean.h"
 
+// Primero busca la dirección de la página en la tabla de páginas, si no la encuentra la busca en la memoria física y la asigna a la tabla de páginas.
+uint32_t get_instruccion_proceso(HiloHardware* hilo) {
+    uint32_t* dir_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, hilo->PC,hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
+    return *dir_fisica;
+}
+
+void ejecutar_funcion_instruccion(uint32_t instruccion) {
+   //todo
+}
+
 void ejecutar_instruccion(HiloHardware* hilo) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);
-    ejecutar_instruccion_proceso(hilo -> current_process);
+    uint32_t instruccion = get_instruccion_proceso(hilo);
+    ejecutar_funcion_instruccion(instruccion);
+    avanzar_ejecucion_proceso(hilo -> current_process);
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);
 }
 
@@ -62,9 +74,19 @@ void* funcion_hilo_hardware(void* arg) {
     return NULL;
 }
 
-void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo) {
+void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo, PhysicalMemory* pm) {
     hilo_hardware -> id_hilo = id_hilo;
+    hilo_hardware -> current_process = NULL;
+    for(int i = 0; i < 16; i++) {
+        hilo_hardware -> registros[i] = 0;
+        hilo_hardware -> pid_registros[i] = -1;
+    }
+    MMU* mmu = malloc(sizeof(MMU));
+    init_mmu(mmu, pm);
+
     pthread_mutex_init(&hilo_hardware->mutex_acceso_hilo, NULL);
+    pthread_mutex_init(&hilo_hardware->mutex, NULL);
+    pthread_cond_init(&hilo_hardware->condition, NULL);
     pthread_create(&hilo_hardware->thread, NULL, funcion_hilo_hardware, (void*)hilo_hardware);
 }
 
@@ -101,6 +123,16 @@ void vaciar_hilo_y_set_estado(HiloHardware* hilo, EstadoProceso estado) {
 void asignar_proceso_a_hilo(HiloHardware* hilo, PCB* pcb) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);
     hilo -> current_process = pcb;
+
+    //Cargar los registros del proceso en el hilo, en una simulación más realista estarían en la memoria física.
+    hilo -> PC = pcb->estado_ejecucion_proceso->PC;
+    hilo -> IR = pcb->estado_ejecucion_proceso->IR;
+    hilo -> PTBR = pcb->mm_pcb->pgb;
+    for(int i = 0; i < 16; i++) {
+        hilo -> registros[i] = pcb->estado_ejecucion_proceso->registros[i];
+        hilo -> pid_registros[i] = pcb->pid;
+    }
+
     set_estado_proceso_ejecutando(pcb);
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);
 }

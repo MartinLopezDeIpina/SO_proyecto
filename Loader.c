@@ -55,53 +55,54 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
 
     int num_pags_totales = num_pags_text + num_pags_data;
 
-    pcb->mm_pcb->code = (uint32_t*)malloc(sizeof(uint32_t));
-    *(pcb->mm_pcb->code) = text_addr;
+    int num_instrucciones_totales = num_instrucciones_text + num_instrucciones_data;
+    pcb->num_instrucciones = num_instrucciones_text;
 
-    pcb->mm_pcb->data = (uint32_t*)malloc(sizeof(uint32_t));
-    *(pcb->mm_pcb->data) = data_addr;
+    pcb->mm_pcb->code = (uint32_t*)text_addr;
+    pcb->mm_pcb->data = (uint32_t*)data_addr;
 
     uint32_t dir_primera_entrada_tabla_paginas = get_entrada_tabla_paginas_para_nuevo_proceso(loader->pm, num_pags_totales);
-
     pcb->mm_pcb->pgb = get_puntero_a_direccion_memoria(loader->pm, dir_primera_entrada_tabla_paginas);
 
     int dir_logica_actual = text_addr;
-    uint32_t dir_fisica_actual = *pcb->mm_pcb->pgb;
+    uint32_t dir_fisica_actual = dir_primera_entrada_tabla_paginas;
     int indice_pagina_actual = 0;
     // Leer y escribir instrucciones de text
     for (int i = 0; i < num_instrucciones_text; i++) {
         uint32_t valor;
         fscanf(file, "%X", &valor);
 
-        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
-        dir_logica_actual++;
-        dir_fisica_actual++;
         //Si se llega al final de la página, se pasa a la siguiente
         if(dir_logica_actual >= text_addr + TAMANIO_PAGINA * (indice_pagina_actual + 1)) {
             indice_pagina_actual++;
             int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
             dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
         }
+
+        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
+        dir_logica_actual++;
+        dir_fisica_actual++;
     }
     // Pasar a la siguiente página porque text y data están separados
     indice_pagina_actual++;
     int indice_pagina_codigo_actual = 0;
     int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
+    uint32_t dir_debug = loader->pm->memoria[indice_tabla_paginas];
     dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
     for(int i = 0; i < num_instrucciones_data; i++) {
         uint32_t valor;
-
         fscanf(file, "%X", &valor);
 
-        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
-        dir_logica_actual++;
-        dir_fisica_actual++;
         //Si se llega al final de la página, se pasa a la siguiente
         if(dir_logica_actual >= data_addr + TAMANIO_PAGINA * (indice_pagina_codigo_actual + 1)) {
             indice_pagina_actual++;
             int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
             dir_fisica_actual = *get_puntero_a_direccion_memoria(loader->pm, indice_tabla_paginas);
         }
+
+        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
+        dir_logica_actual++;
+        dir_fisica_actual++;
     }
 
     fclose(file);
@@ -128,7 +129,7 @@ void ejecutar_funcion_temporizador_process_generator(void* self) {
 void init_loader(Loader* process_generator, ProcessQueue* process_queue, PhysicalMemory* pm) {
     process_generator -> i_componente_temporizable.ejecutar_funcion_temporizador = ejecutar_funcion_temporizador_process_generator;
     process_generator -> process_queue = process_queue;
-    process_generator -> ultimo_pid = -1;
+    process_generator -> ultimo_pid = 0;
     process_generator -> pm = pm;
 
     for(int i = 0; i < NUM_PROCESOS_INICIALES; i++) {

@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     init_loader(&pg, &pq, &pm);
 
     Machine machine;
-    init_machine(&machine, NUM_CPUS, NUM_CORES_CPU, NUM_THREADS_CORE);
+    init_machine(&machine, &pm, NUM_CPUS, NUM_CORES_CPU, NUM_THREADS_CORE);
 
     Scheduler scheduler;
     init_scheduler(&scheduler, &pq, &machine);

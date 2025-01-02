@@ -15,13 +15,21 @@
 #include "Boolean.h"
 #include "DebugPrints.h"
 #include "globals.h"
+#include "Machine/MMU.h"
 
+
+void init_estado_ejecucion_proceso(EstadoEjecucionProceso* estado_ejecucion_proceso) {
+    estado_ejecucion_proceso -> PC = 0;
+    estado_ejecucion_proceso -> IR = 0;
+    for (int i = 0; i < 16; i++) {
+        estado_ejecucion_proceso -> registros[i] = 0;
+    }
+}
 
 void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> pid = pid;
     pcb -> prioridad = prioridad;
     pcb -> num_instruccion_actual = 0;
-    pcb -> num_instrucciones = INSTRUCCIONES_POR_PROCESO;
     pcb -> estado = LISTO;
     pcb -> indice_ultimo_core_visitado = -1;
 
@@ -34,10 +42,17 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
     mm* mm_pcb = (mm*)malloc(sizeof(mm));
     pcb->mm_pcb = mm_pcb;
 
+    EstadoEjecucionProceso* estado_ejecucion_proceso = (EstadoEjecucionProceso*)malloc(sizeof(EstadoEjecucionProceso));
+    init_estado_ejecucion_proceso(estado_ejecucion_proceso);
+    pcb->estado_ejecucion_proceso = estado_ejecucion_proceso;
+
     pthread_mutex_init(&pcb -> mutex, NULL);
 }
 
-void ejecutar_instruccion_proceso(PCB* pcb) {
+/*
+ * Contiene la lógica del número de instrucciones ejecutados y el saldo del proceso.
+ */
+void avanzar_ejecucion_proceso(PCB* pcb) {
     if (pcb == NULL) {
         return;
     }

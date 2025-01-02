@@ -56,6 +56,7 @@ void init_temporizador(Temporizador* temporizador, void* componente_temporizable
     temporizador -> componente_temporizable = componente_temporizable;
     temporizador -> i_componente_temporizable = *i_componente_temporizable;
     temporizador -> frecuencia = frecuencia;
+    temporizador -> resto_tick = 0;
 
     pthread_t thread;
     pthread_create(&thread, NULL, bucle_temporizador, temporizador);

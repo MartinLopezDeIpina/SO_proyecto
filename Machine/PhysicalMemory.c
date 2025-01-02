@@ -54,7 +54,7 @@ void escribir_direccion_en_tabla_paginas(PhysicalMemory* pm, uint32_t dir_pag_ta
     pthread_mutex_lock(&pm->mutex);
 
     pm -> memoria[dir_pag_tabla_paginas] = (uint32_t)dir_pag;
-    printf("En la dirección %d se ha escrito el valor %d\n", dir_pag_tabla_paginas, pm->memoria[dir_pag_tabla_paginas]);
+    printf("** En la dirección %d se ha escrito el valor %d **\n", dir_pag_tabla_paginas, pm->memoria[dir_pag_tabla_paginas]);
 
    pthread_mutex_unlock(&pm->mutex);
 }

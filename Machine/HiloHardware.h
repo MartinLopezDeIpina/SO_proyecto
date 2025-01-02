@@ -23,9 +23,13 @@ typedef struct {
     PCB* current_process;
 
     uint32_t* PTBR;
-    MMU mmu;
-    uint32_t* PC;
-    uint32_t* RI;
+    int PC;
+    int IR;
+
+    MMU* mmu;
+
+    int registros[16];
+    int pid_registros[16];
 }HiloHardware;
 
 void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo);

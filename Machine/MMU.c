@@ -32,6 +32,7 @@ void init_mmu(MMU* mmu, PhysicalMemory* pm) {
         entrada -> pid_proceso = -1;
         entrada -> dir_pag_lógica = -1;
         entrada -> dir_pag_física = -1;
+        entrada->timestamp_ultimo_acceso = 0;
         mmu->TLB[i] = entrada;
     }
     mmu->pm = pm;
@@ -43,8 +44,10 @@ uint32_t get_dir_marco(MMU* mmu, int pid_proceso, uint32_t dir_pag_lógica) {
 
     for (int i = 0; i < SIZE_TLB; i++) {
         if (mmu->TLB[i]->pid_proceso == pid_proceso && mmu->TLB[i]->dir_pag_lógica == dir_pag_lógica) {
+            mmu->TLB[i]->timestamp_ultimo_acceso = get_current_time();
+            uint32_t dir_fisica = mmu->TLB[i]->dir_pag_física;
             pthread_mutex_unlock(&mmu->mutex);
-            return mmu->TLB[i]->dir_pag_física;
+            return dir_fisica;
         }
     }
 

@@ -30,7 +30,7 @@
 #define DIR_PRIMERA_PAGINA NUM_PAGINAS * 4
 
 // 64 = 16 direcciones de 4 bytes
-#define SIZE_TLB 64
+#define SIZE_TLB 16
 
 #define PATH_FICHEROS_PROCESOS "prometheus/"
 

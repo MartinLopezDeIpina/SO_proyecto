@@ -164,14 +164,7 @@ void liberar_entrada_tabla_paginas(PhysicalMemory* pm, uint32_t dir_fisica_entra
 }
 
 void liberar_memoria_paginas(PhysicalMemory* pm, uint32_t dir_fisica_marco, int num_paginas) {
-    uint32_t dir_primera_pagina_tabla;
-    for (int i = 0; i < NUM_PAGINAS; i++) {
-        if (leer_palabra_de_memoria(pm, i*4) == dir_fisica_marco) {
-            //dirección física de tabla de páginas
-            dir_primera_pagina_tabla = i*4;
-            break;
-        }
-    }
+    uint32_t dir_primera_pagina_tabla = dir_fisica_marco;
 
     for (int i = 0; i < num_paginas; i++) {
         uint32_t dir_fisica_entrada_tabla_paginas = dir_primera_pagina_tabla + (i * 4);

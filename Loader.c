@@ -62,6 +62,7 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     print_proceso_num_instrucciones(num_pags_text, num_pags_data, loader -> ultimo_pid);
 
     pcb->num_instrucciones = *num_instrucciones_code;
+    pcb->num_instrucciones_data = *num_instrucciones_data;
     *(pcb->mm_pcb->code) = text_addr;
     *(pcb->mm_pcb->data) = data_addr;
 

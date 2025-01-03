@@ -102,7 +102,7 @@ void liberar_todas_las_paginas_proceso(HiloHardware* hilo) {
     // El tamanio de las páginas está en bytes
     int num_pags_text = (num_bytes_text + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
 
-    int num_bytes_data = hilo->PC - *hilo->current_process->mm_pcb->data;
+    int num_bytes_data = hilo->current_process->num_instrucciones_data * 4;
     int num_pags_data = (num_bytes_data + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
 
     int num_pags_totales = num_pags_text + num_pags_data;

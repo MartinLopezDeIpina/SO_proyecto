@@ -44,6 +44,7 @@ typedef struct {
     int prioridad;
     int num_instruccion_actual;
     int num_instrucciones;
+    int num_instrucciones_data;
     int indice_ultimo_core_visitado;
 
     EstadoProceso estado;

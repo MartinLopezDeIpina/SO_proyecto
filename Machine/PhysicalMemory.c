@@ -72,13 +72,17 @@ uint32_t get_dir_pag_libre_pm(PhysicalMemory* pm) {
     return dir_pag;
 }
 
+void escribir_direccion_en_tabla_paginas_sin_mutex(PhysicalMemory* pm, uint32_t dir_pag_tabla_paginas, uint32_t dir_pag) {
+    escribir_palabra_en_memoria(pm, dir_pag_tabla_paginas, dir_pag);
+    print_direccion_escrita(dir_pag_tabla_paginas, leer_palabra_de_memoria(pm, dir_pag_tabla_paginas));
+}
+
 void escribir_direccion_en_tabla_paginas(PhysicalMemory* pm, uint32_t dir_pag_tabla_paginas, uint32_t dir_pag) {
     pthread_mutex_lock(&pm->mutex);
 
-    escribir_palabra_en_memoria(pm, dir_pag_tabla_paginas, dir_pag);
-    print_direccion_escrita(dir_pag_tabla_paginas, leer_palabra_de_memoria(pm, dir_pag_tabla_paginas));
+    escribir_direccion_en_tabla_paginas_sin_mutex(pm, dir_pag_tabla_paginas, dir_pag);
 
-   pthread_mutex_unlock(&pm->mutex);
+    pthread_mutex_unlock(&pm->mutex);
 }
 
 void escribir_valor_en_direccion(PhysicalMemory* pm, uint32_t dir, uint32_t valor) {
@@ -133,7 +137,7 @@ uint32_t get_entrada_tabla_paginas_para_nuevo_proceso(PhysicalMemory* pm, int nu
        // convertir dirección lógica de la página a dirección de entrada en la tabla de páginas.
        uint32_t dir_pag_table = (dir_primera_pagina + j) * 4;
        uint32_t dir_pag_libre = get_dir_pag_libre(pm);
-       escribir_direccion_en_tabla_paginas(pm, dir_pag_table, dir_pag_libre);
+       escribir_direccion_en_tabla_paginas_sin_mutex(pm, dir_pag_table, dir_pag_libre);
     }
 
     pthread_mutex_unlock(&pm->mutex);

@@ -112,15 +112,13 @@ uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t*
     int dir_logica_pagina;
     int indice_pag_data;
     if(es_dir_text) {
-        // tamanio página está en bytes, convertirlo a palabras de 4 bytes.
-        dir_logica_pagina = (dir_logica - *dir_log_text) / (TAMANIO_PAGINA / 4);
+        dir_logica_pagina = (dir_logica - *dir_log_text) / (TAMANIO_PAGINA);
     }else {
         int num_direcciones_text = *dir_logica_data - *dir_log_text;
-        // División entre 4 porque TAMANIO_PAGINA está en bytes y queremos palabras
-        int num_pags_text = (num_direcciones_text + (TAMANIO_PAGINA/4) - 1) / (TAMANIO_PAGINA/4);
+        int num_pags_text = (num_direcciones_text + (TAMANIO_PAGINA) - 1) / (TAMANIO_PAGINA);
 
-        int num_instrucciones_data_antes = dir_logica - *dir_logica_data;
-        indice_pag_data = (num_instrucciones_data_antes + (TAMANIO_PAGINA/4) - 1) / (TAMANIO_PAGINA/4);
+        int num_instrucciones_data_antes = (dir_logica - *dir_logica_data)/4;
+        indice_pag_data = (num_instrucciones_data_antes + (TAMANIO_PAGINA) - 1) / (TAMANIO_PAGINA);
         dir_logica_pagina = num_pags_text + indice_pag_data;
     }
 
@@ -136,7 +134,13 @@ uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t*
         set_entrada_TLB(mmu, pid_proceso, dir_logica_pagina, dir_fisica_marco);
     }
 
-    uint32_t offset_dentro_de_pagina = dir_logica % TAMANIO_PAGINA;
+    uint32_t offset_dentro_de_pagina = 0;
+    if(es_dir_text) {
+        offset_dentro_de_pagina = dir_logica % TAMANIO_PAGINA;
+    }else {
+        offset_dentro_de_pagina = (dir_logica - *dir_logica_data) % TAMANIO_PAGINA;
+    }
+
     // dir_fisica_marco ya está en bytes, offset_dentro_de_pagina también está en bytes
     uint32_t dir_fisica = dir_fisica_marco + offset_dentro_de_pagina;
 

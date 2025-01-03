@@ -98,9 +98,26 @@ void print_proceso_num_instrucciones(int num_pags_codigo, int num_pags_data, int
 }
 
 void print_direccion_escrita(uint32_t dir, uint32_t valor) {
-    debug_printf("** En la dirección %d se ha escrito el valor %X **\n", DEBUG_DIRS_MEMORIA, dir, valor);
+    debug_printf("** En la dirección %X se ha escrito el valor %X **\n", DEBUG_DIRS_MEMORIA, dir, valor);
 }
 
 void print_error_direccion_no_alineada(uint32_t dir) {
-    debug_printf("Error: la dirección %d no está alineada a 4 bytes\n", DEBUG_DIRS_MEMORIA, dir);
+    debug_printf("Error: la dirección %X no está alineada a 4 bytes\n", DEBUG_DIRS_MEMORIA, dir);
 }
+
+void print_ejecutando_instruccion(int pid, uint32_t instruccion) {
+    debug_printf("Proceso %d ejecutando instrucción %X\n", DEBUG_DIRS_MEMORIA, pid, instruccion);
+}
+void print_instruccion_ld(int pid, int num_registro, uint32_t valor) {
+    debug_printf("Proceso %d ejecutando instrucción LD en registro %d con valor %X\n", DEBUG_DIRS_MEMORIA, pid, num_registro, valor);
+}
+void print_instruccion_st(int pid, int dir_fisica, uint32_t valor) {
+    debug_printf("Proceso %d ejecutando instrucción ST en dir física %X con valor %X\n", DEBUG_DIRS_MEMORIA, pid, dir_fisica, valor);
+}
+void print_instruccion_add(int pid, uint32_t valor1, uint32_t valor2, uint32_t resultado) {
+    debug_printf("Proceso %d ejecutando instrucción ADD con valores %X y %X, resultado: %X\n", DEBUG_DIRS_MEMORIA, pid, valor1, valor2, resultado);
+}
+void print_instruccion_exit(int pid) {
+    debug_printf("Proceso %d ejecutando instrucción EXIT\n", DEBUG_DIRS_MEMORIA, pid);
+}
+

@@ -9,6 +9,7 @@
 
 #include "../Boolean.h"
 #include "PhysicalMemory.h"
+#include "../DebugPrints.h"
 
 // Sacar la dirección física usando la MMU en el hilo hardware.
 uint32_t get_instruccion_proceso(HiloHardware* hilo) {
@@ -48,6 +49,8 @@ void ejecutar_funcion_ld(HiloHardware* hilo, uint32_t instruccion) {
     uint32_t valor = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica);
 
     set_registro(hilo, num_registro, valor);
+
+    print_instruccion_ld(hilo->current_process->pid, num_registro, valor);
 }
 
 void ejecutar_funcion_add(HiloHardware* hilo, uint32_t instruccion) {
@@ -58,6 +61,8 @@ void ejecutar_funcion_add(HiloHardware* hilo, uint32_t instruccion) {
     uint32_t suma = get_registro(hilo, registro_fuente1) + get_registro(hilo, registro_fuente2);
 
     hilo->registros[registro_destino] = suma;
+
+    print_instruccion_add(hilo->current_process->pid, get_registro(hilo, registro_fuente1), get_registro(hilo, registro_fuente2), suma);
 }
 
 void ejecutar_funcion_st(HiloHardware* hilo, uint32_t instruccion) {
@@ -77,6 +82,8 @@ void ejecutar_funcion_st(HiloHardware* hilo, uint32_t instruccion) {
 
     // usar la función para lockear el mutex en lugar de acceder directamente al memoria.
     escribir_valor_en_direccion(hilo->mmu->pm, dir_fisica, valor);
+
+    print_instruccion_st(hilo->current_process->pid, dir_fisica, valor);
 }
 
 void limpiar_registros_proceso(HiloHardware* hilo, int pid) {
@@ -111,6 +118,8 @@ void ejecutar_funcion_exit(HiloHardware* hilo, uint32_t instruccion) {
 
     // El scheduler se encarga de eliminar el proceso de la cola de procesos.
     set_estado_proceso_terminado(hilo->current_process);
+
+    print_instruccion_exit(hilo->current_process->pid);
 }
 
 void ejecutar_funcion_instruccion(HiloHardware* hilo, uint32_t instruccion) {
@@ -141,6 +150,7 @@ void ejecutar_funcion_instruccion(HiloHardware* hilo, uint32_t instruccion) {
 void ejecutar_instruccion(HiloHardware* hilo) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);
     uint32_t instruccion = get_instruccion_proceso(hilo);
+    print_ejecutando_instruccion(hilo->current_process->pid, instruccion);
     ejecutar_funcion_instruccion(hilo, instruccion);
     hilo->PC += 4;
     avanzar_ejecucion_proceso(hilo -> current_process);

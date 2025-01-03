@@ -73,23 +73,16 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     int indice_pagina_actual = 0;
 
     // Leer y escribir instrucciones de text
-    for (int i = 0; i < num_bytes_code; i++) {
+    for (int i = 0; i < *num_instrucciones_code; i++) {
         //Si se llega al final de la página, se pasa a la siguiente
         if(dir_logica_actual >= text_addr + TAMANIO_PAGINA * (indice_pagina_actual + 1)) {
             indice_pagina_actual++;
             int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual * 4);
             dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas);
         }
-
-        /*
-        * Puede ser que se hayan escrito todas las instrucciones código pero haya que seguir reservando páginas porque algunos
-        * procesos comienzan el segmento de datos varias páginas después
-        */
-        if (i/4 < *num_instrucciones_code) {
-            uint32_t valor;
-            fscanf(file, "%X", &valor);
-            escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
-        }
+        uint32_t valor;
+        fscanf(file, "%X", &valor);
+        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
         // Ir de palabra en palabra
         dir_logica_actual += 4;
         dir_fisica_actual += 4;

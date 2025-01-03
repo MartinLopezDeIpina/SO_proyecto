@@ -8,7 +8,7 @@
 #include <bits/pthreadtypes.h>
 
 typedef struct {
-    uint32_t* memoria;
+    uint8_t* memoria;
     // Los procesos podrán acceder a la memoria física de forma concurrente.
     pthread_mutex_t mutex;
 }PhysicalMemory;

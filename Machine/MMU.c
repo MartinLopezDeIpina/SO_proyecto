@@ -9,6 +9,7 @@
 #include <stdlib.h>
 
 #include "PhysicalMemory.h"
+#include "../DebugPrints.h"
 #include "../globals.h"
 uint64_t get_current_time() {
     struct timespec ts;
@@ -18,6 +19,7 @@ uint64_t get_current_time() {
 
 void init_entrada_TLB(EntradaTLB* entrada, int pid_proceso, uint32_t dir_pag_lógica, uint32_t dir_pag_física) {
     entrada->pid_proceso = pid_proceso;
+    //dir_pag_lógica va de direcciones en uno a uno, no de palabras en 4 bytes.
     entrada->dir_pag_lógica = dir_pag_lógica;
     entrada->dir_pag_física = dir_pag_física;
     entrada->timestamp_ultimo_acceso = get_current_time();
@@ -99,21 +101,26 @@ void liberar_entradas_proceso(MMU* mmu, int pid_proceso) {
  * Si la dirección lógica del marco está en la TLB, se calcula directamente la dirección física.
  * Si la dirección lógica del marco no está en la TLB, se consulta la tabla de páginas.
  */
-//todo: falla algo de lógica porque resuelve mal las direcciones -> devuelve dirección física donde no hay ningún valor válido, devuelve entre instrucciones cíóido y datos en lugar de la primera instrucción de código
 uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t* PTBR, int pid_proceso, uint32_t* dir_log_text, uint32_t* dir_logica_data) {
+    // Si la dirección lógica no está alineada a 4 bytes printear un error.
+    if (dir_logica % 4 != 0) {
+        print_error_direccion_no_alineada(dir_logica);
+    }
 
     bool es_dir_text = dir_logica < *dir_logica_data;
 
     int dir_logica_pagina;
     int indice_pag_data;
     if(es_dir_text) {
-        dir_logica_pagina = (dir_logica - *dir_log_text) / TAMANIO_PAGINA;
+        // tamanio página está en bytes, convertirlo a palabras de 4 bytes.
+        dir_logica_pagina = (dir_logica - *dir_log_text) / (TAMANIO_PAGINA / 4);
     }else {
         int num_direcciones_text = *dir_logica_data - *dir_log_text;
-        int num_pags_text = (num_direcciones_text + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+        // División entre 4 porque TAMANIO_PAGINA está en bytes y queremos palabras
+        int num_pags_text = (num_direcciones_text + (TAMANIO_PAGINA/4) - 1) / (TAMANIO_PAGINA/4);
 
         int num_instrucciones_data_antes = dir_logica - *dir_logica_data;
-        indice_pag_data = (num_instrucciones_data_antes + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+        indice_pag_data = (num_instrucciones_data_antes + (TAMANIO_PAGINA/4) - 1) / (TAMANIO_PAGINA/4);
         dir_logica_pagina = num_pags_text + indice_pag_data;
     }
 
@@ -122,20 +129,15 @@ uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t*
     bool fallo_pagina = dir_fisica_marco == -1;
     // Acceder a la tabla de páginas para obtener la dirección física de la página.
     if(fallo_pagina) {
-        uint32_t dir_tabla_paginas_marco = *PTBR + dir_logica_pagina;
+        // dir_logica_pagina debe multiplicarse por 4 porque cada entrada ocupa 4 bytes
+        uint32_t dir_tabla_paginas_marco = *PTBR + (dir_logica_pagina * 4);
         dir_fisica_marco = get_valor_en_direccion_de_memoria(mmu->pm, dir_tabla_paginas_marco);
 
         set_entrada_TLB(mmu, pid_proceso, dir_logica_pagina, dir_fisica_marco);
     }
 
-    uint32_t dir_inicio_pagina;
-    if(es_dir_text) {
-       dir_inicio_pagina = dir_logica_pagina * TAMANIO_PAGINA;
-    }else {
-       dir_inicio_pagina = *dir_logica_data + indice_pag_data * TAMANIO_PAGINA;
-    }
     uint32_t offset_dentro_de_pagina = dir_logica % TAMANIO_PAGINA;
-
+    // dir_fisica_marco ya está en bytes, offset_dentro_de_pagina también está en bytes
     uint32_t dir_fisica = dir_fisica_marco + offset_dentro_de_pagina;
 
     return dir_fisica;

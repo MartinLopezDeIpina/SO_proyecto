@@ -22,5 +22,6 @@ void print_ganador(Partida* partida, PCB* jugador);
 
 void print_proceso_num_instrucciones(int num_instrucciones_codigo, int num_instrucciones_data, int pid_prceso);
 void print_direccion_escrita(uint32_t dir, uint32_t valor);
+void print_error_direccion_no_alineada(uint32_t dir);
 
 #endif //DEBUGPRINTS_H

@@ -31,15 +31,12 @@ FILE* get_file_proceso(Loader* loader, int pid) {
 void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader* loader, PCB* pcb) {
     FILE* file = get_file_proceso(loader, loader -> ultimo_pid);
     // las dos primeras líneas no son instrucciones
-    int num_instrucciones_totales;
     int* num_instrucciones_code = (int*)malloc(sizeof(int));
     int* num_instrucciones_data = (int*)malloc(sizeof(int));
 
     contar_instrucciones_code_y_data(file, num_instrucciones_code, num_instrucciones_data);;
-    num_instrucciones_totales = *num_instrucciones_code + *num_instrucciones_data;
 
     char linea_header[14];    // ".text " + 6 hex + \n + \0
-    char linea_dato[9];       // 8 hex + \0
     uint32_t text_addr, data_addr;
 
     // Leer dirección de text
@@ -52,18 +49,19 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         sscanf(linea_header, ".data %x", &data_addr);
     }
 
-    int num_direcciones_code = data_addr - text_addr;
-    // data_addr / tamanio_pagina redondeado hacia arriba
-    int num_pags_text = (num_direcciones_code + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+    int num_bytes_code = data_addr - text_addr;
+    // data_addr / tamanio_pagina redondeado hacia arriba -> el tamanio página ya está en bytes
+    int num_pags_text = (num_bytes_code + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
 
-    int num_pags_data = (*num_instrucciones_data + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+    // Cada instrucción de data ocupa 4 bytes
+    int num_bytes_data = *num_instrucciones_data * 4;
+    int num_pags_data = (num_bytes_data + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
 
     int num_pags_totales = num_pags_text + num_pags_data;
 
     print_proceso_num_instrucciones(num_pags_text, num_pags_data, loader -> ultimo_pid);
 
     pcb->num_instrucciones = *num_instrucciones_code;
-
     *(pcb->mm_pcb->code) = text_addr;
     *(pcb->mm_pcb->data) = data_addr;
 
@@ -73,15 +71,13 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     int dir_logica_actual = text_addr;
     uint32_t dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, *pcb->mm_pcb->pgb);
     int indice_pagina_actual = 0;
+
     // Leer y escribir instrucciones de text
-    if(pcb->pid == 4) {
-        printf("debug");
-    }
-    for (int i = 0; i < num_direcciones_code; i++) {
+    for (int i = 0; i < num_bytes_code; i++) {
         //Si se llega al final de la página, se pasa a la siguiente
         if(dir_logica_actual >= text_addr + TAMANIO_PAGINA * (indice_pagina_actual + 1)) {
             indice_pagina_actual++;
-            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
+            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual * 4);
             dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas);
         }
 
@@ -89,19 +85,21 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         * Puede ser que se hayan escrito todas las instrucciones código pero haya que seguir reservando páginas porque algunos
         * procesos comienzan el segmento de datos varias páginas después
         */
-        if (i < *num_instrucciones_code) {
+        if (i/4 < *num_instrucciones_code) {
             uint32_t valor;
             fscanf(file, "%X", &valor);
             escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
         }
-        dir_logica_actual++;
-        dir_fisica_actual++;
+        // Ir de palabra en palabra
+        dir_logica_actual += 4;
+        dir_fisica_actual += 4;
     }
     // Pasar a la siguiente página porque text y data están separados
     indice_pagina_actual++;
     int indice_pagina_codigo_actual = 0;
-    int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
+    int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual*4);
     dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas);
+
     for(int i = 0; i < *num_instrucciones_data; i++) {
         uint32_t valor;
         fscanf(file, "%X", &valor);
@@ -110,13 +108,13 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         if(dir_logica_actual >= data_addr + TAMANIO_PAGINA * (indice_pagina_codigo_actual + 1)) {
             indice_pagina_actual++;
             indice_pagina_codigo_actual++;
-            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + indice_pagina_actual;
+            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual*4);
             dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas);
         }
 
         escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
-        dir_logica_actual++;
-        dir_fisica_actual++;
+        dir_logica_actual+=4;
+        dir_fisica_actual+=4;
     }
 
     fclose(file);

@@ -12,8 +12,14 @@
 
 // Sacar la dirección física usando la MMU en el hilo hardware.
 uint32_t get_instruccion_proceso(HiloHardware* hilo) {
-    uint32_t dir_logica = hilo->PC;
-    uint32_t dir_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, hilo->PC,hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
+    uint32_t dir_fisica = get_dir_fisica_para_dir_logica(
+        hilo->mmu,
+        hilo->PC,
+        hilo->PTBR,
+        hilo->current_process->pid,
+        hilo->current_process->mm_pcb->code,
+        hilo->current_process->mm_pcb->data
+        );
     uint32_t instruccion = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica);
     return instruccion;
 }
@@ -30,9 +36,18 @@ void ejecutar_funcion_ld(HiloHardware* hilo, uint32_t instruccion) {
     int num_registro = (instruccion & 0x0F000000) >> 24;
     uint32_t dir_memoria = instruccion & 0x00FFFFFF;
 
-    uint32_t valor = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
+    uint32_t dir_fisica = get_dir_fisica_para_dir_logica(
+        hilo->mmu,
+        dir_memoria,
+        hilo->PTBR,
+        hilo->current_process->pid,
+        hilo->current_process->mm_pcb->code,
+        hilo->current_process->mm_pcb->data
+        );
 
-    hilo->registros[num_registro] = valor;
+    uint32_t valor = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica);
+
+    set_registro(hilo, num_registro, valor);
 }
 
 void ejecutar_funcion_add(HiloHardware* hilo, uint32_t instruccion) {
@@ -40,7 +55,7 @@ void ejecutar_funcion_add(HiloHardware* hilo, uint32_t instruccion) {
     uint32_t registro_fuente1 = (instruccion & 0x00F00000) >> 20;
     uint32_t registro_fuente2 = (instruccion & 0x000F0000) >> 16;
 
-    uint32_t suma = hilo->registros[registro_fuente1] + hilo->registros[registro_fuente2];
+    uint32_t suma = get_registro(hilo, registro_fuente1) + get_registro(hilo, registro_fuente2);
 
     hilo->registros[registro_destino] = suma;
 }
@@ -49,8 +64,16 @@ void ejecutar_funcion_st(HiloHardware* hilo, uint32_t instruccion) {
     uint32_t num_registro = (instruccion & 0x0F000000) >> 24;
     uint32_t dir_memoria = instruccion & 0x00FFFFFF;
 
-    uint32_t dir_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
-    uint32_t valor = hilo->registros[num_registro];
+    uint32_t dir_fisica = get_dir_fisica_para_dir_logica(
+        hilo->mmu,
+        dir_memoria,
+        hilo->PTBR,
+        hilo->current_process->pid,
+        hilo->current_process->mm_pcb->code,
+        hilo->current_process->mm_pcb->data
+        );
+
+    uint32_t valor = get_registro(hilo, num_registro);
 
     // usar la función para lockear el mutex en lugar de acceder directamente al memoria.
     escribir_valor_en_direccion(hilo->mmu->pm, dir_fisica, valor);
@@ -67,13 +90,13 @@ void limpiar_registros_proceso(HiloHardware* hilo, int pid) {
 }
 
 void liberar_todas_las_paginas_proceso(HiloHardware* hilo) {
-    int num_instrucciones_text = hilo->current_process->mm_pcb->data - hilo->current_process->mm_pcb->code;
-    // data_addr / tamanio_pagina redondeado hacia arriba
-    int num_pags_text = (num_instrucciones_text + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+    // Las direcciones ya vienen en bytes
+    int num_bytes_text = *hilo->current_process->mm_pcb->data - *hilo->current_process->mm_pcb->code;
+    // El tamanio de las páginas está en bytes
+    int num_pags_text = (num_bytes_text + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
 
-    // cuando se llame a la instrucción exit PC siempre estará en la última dirección lógica.
-    int num_instrucciones_data = hilo->PC - *hilo->current_process->mm_pcb->data;
-    int num_pags_data = (num_instrucciones_data + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
+    int num_bytes_data = hilo->PC - *hilo->current_process->mm_pcb->data;
+    int num_pags_data = (num_bytes_data + TAMANIO_PAGINA - 1) / TAMANIO_PAGINA;
 
     int num_pags_totales = num_pags_text + num_pags_data;
 
@@ -119,6 +142,7 @@ void ejecutar_instruccion(HiloHardware* hilo) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);
     uint32_t instruccion = get_instruccion_proceso(hilo);
     ejecutar_funcion_instruccion(hilo, instruccion);
+    hilo->PC += 4;
     avanzar_ejecucion_proceso(hilo -> current_process);
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);
 }
@@ -210,8 +234,17 @@ void vaciar_hilo(HiloHardware* hilo) {
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);
 }
 
+void copiar_registros_hilo_hardware_en_objeto_PCB(HiloHardware* hilo) {
+    hilo->current_process->estado_ejecucion_proceso->PC = hilo->PC;
+    hilo->current_process->estado_ejecucion_proceso->IR = hilo->IR;
+    for(int i = 0; i < 16; i++) {
+        hilo->current_process->estado_ejecucion_proceso->registros[i] = hilo->registros[i];
+    }
+}
+
 void vaciar_hilo_y_set_estado(HiloHardware* hilo, EstadoProceso estado) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);
+    copiar_registros_hilo_hardware_en_objeto_PCB(hilo);
     set_estado_proceso(hilo -> current_process, estado);
     hilo -> current_process = NULL;
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);

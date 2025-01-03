@@ -32,9 +32,9 @@ typedef struct {
 void init_mm(mm* mm);
 
 typedef struct {
-    int registros[16];
-    int PC;
-    int IR;
+    uint32_t registros[16];
+    uint32_t PC;
+    uint32_t IR;
 }EstadoEjecucionProceso;
 
 void init_estado_ejecucion_proceso(EstadoEjecucionProceso* estado_ejecucion_proceso);

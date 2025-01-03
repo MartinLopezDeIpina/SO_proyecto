@@ -100,3 +100,7 @@ void print_proceso_num_instrucciones(int num_pags_codigo, int num_pags_data, int
 void print_direccion_escrita(uint32_t dir, uint32_t valor) {
     debug_printf("** En la dirección %d se ha escrito el valor %X **\n", DEBUG_DIRS_MEMORIA, dir, valor);
 }
+
+void print_error_direccion_no_alineada(uint32_t dir) {
+    debug_printf("Error: la dirección %d no está alineada a 4 bytes\n", DEBUG_DIRS_MEMORIA, dir);
+}

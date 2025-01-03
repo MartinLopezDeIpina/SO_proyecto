@@ -16,17 +16,21 @@
 // 2^24 = 16777216
 #define NUM_DIRECCIONES 16777216
 
-// en celdas de 4 bytes
-#define TAMANIO_PAGINA 4
+// en celdas de 1 byte -> 16 bytes = 16 direcciones = 4 instrucciones
+#define TAMANIO_PAGINA 16
 
-// 4096 x 4096 = 16777216
+// 4096 x 4096 = 16777216 -> con páginas de 4096 bytes
+// 16 x 1048576 -> con páginas de 16 bytes
 #define NUM_PAGINAS (NUM_DIRECCIONES / TAMANIO_PAGINA)
-// Quitar el espacio de las páginas de la tabla de páginas. -> num páginas * 4 es lo que ocupa la tabla de páginas.
-#define NUM_DIRECCIONES_PAGINAS (NUM_DIRECCIONES - NUM_PAGINAS)/TAMANIO_PAGINA
-// 1000 es 4096 en hexadecimal, dir de primera página física después de tabla de páginas.
-#define DIR_PRIMERA_PAGINA 0x1000
 
-#define SIZE_TLB 16
+// Quitar el espacio de las páginas de la tabla de páginas. -> num páginas * 4 es lo que ocupa la tabla de páginas.
+#define NUM_DIRECCIONES_PAGINAS ((NUM_DIRECCIONES - (NUM_PAGINAS * 4)) / TAMANIO_PAGINA)
+
+// Si hay 1048756 páginas, entonces a 4 direcciones por página, la tabla de páginas ocupa 4194304 bytes, lo que deja 12582912 bytes para lo demás.
+#define DIR_PRIMERA_PAGINA NUM_PAGINAS * 4
+
+// 64 = 16 direcciones de 4 bytes
+#define SIZE_TLB 64
 
 #define PATH_FICHEROS_PROCESOS "prometheus/"
 

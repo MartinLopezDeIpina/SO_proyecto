@@ -115,6 +115,11 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
 }
 
 void generar_proceso(Loader* loader) {
+    int pid_proceso = loader -> ultimo_pid;
+    if (pid_proceso > MAX_PROCESOS){
+        return;
+    }
+
     PCB* pcb = (PCB*)malloc(sizeof(PCB));
 
     int prioridad = int_aleatorio_entre_dos_numeros(1, 3);

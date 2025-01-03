@@ -120,9 +120,10 @@ uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t*
         int num_direcciones_text = *dir_logica_data - *dir_log_text;
         int num_pags_text = (num_direcciones_text + (TAMANIO_PAGINA) - 1) / (TAMANIO_PAGINA);
 
-        int num_instrucciones_data_antes = (dir_logica - *dir_logica_data)/4;
-        indice_pag_data = (num_instrucciones_data_antes + (TAMANIO_PAGINA) - 1) / (TAMANIO_PAGINA);
-        dir_logica_pagina = num_pags_text + indice_pag_data;
+        int num_bytes_data_antes = (dir_logica - *dir_logica_data);
+        int num_pag_data_actual = ((num_bytes_data_antes + 1) + (TAMANIO_PAGINA - 1)) / TAMANIO_PAGINA;
+        int num_pag_actual = num_pags_text + num_pag_data_actual;
+        dir_logica_pagina = num_pag_actual-1;
     }
 
     uint32_t dir_fisica_marco = get_dir_marco(mmu, pid_proceso, dir_logica_pagina);

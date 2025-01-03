@@ -215,6 +215,11 @@ void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo, PhysicalMemory
     init_mmu(mmu, pm);
     hilo_hardware->mmu = mmu;
 
+    hilo_hardware->PC = 0;
+    hilo_hardware->IR = 0;
+    hilo_hardware->PTBR = (uint32_t*)malloc(sizeof(uint32_t));
+    *(hilo_hardware->PTBR) = 0;
+
     pthread_mutex_init(&hilo_hardware->mutex_acceso_hilo, NULL);
     pthread_mutex_init(&hilo_hardware->mutex, NULL);
     pthread_cond_init(&hilo_hardware->condition, NULL);
@@ -276,7 +281,8 @@ void cargar_registros_proceso_en_hilo(HiloHardware* hilo, PCB* pcb) {
 void asignar_proceso_a_hilo(HiloHardware* hilo, PCB* pcb) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);
     hilo -> current_process = pcb;
-    hilo -> PTBR = pcb -> mm_pcb -> pgb;
+
+    cargar_registros_proceso_en_hilo(hilo, pcb);
 
     set_estado_proceso_ejecutando(pcb);
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);

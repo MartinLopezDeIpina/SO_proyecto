@@ -54,6 +54,7 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
     init_mm(mm_pcb);
     pcb->mm_pcb = mm_pcb;
 
+
     EstadoEjecucionProceso* estado_ejecucion_proceso = (EstadoEjecucionProceso*)malloc(sizeof(EstadoEjecucionProceso));
     init_estado_ejecucion_proceso(estado_ejecucion_proceso);
     pcb->estado_ejecucion_proceso = estado_ejecucion_proceso;

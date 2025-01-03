@@ -6,7 +6,8 @@
 #define GLOBALS_H
 #include "Boolean.h"
 
-#define debug_partida FALSE
+#define DEBUG_PARTIDA FALSE
+#define DEBUG_DIRS_MEMORIA TRUE
 #define SALDO_NECESARIO_PARA_JUGAR_POKER 5
 #define INSTRUCCIONES_POR_PROCESO 10
 #define UTILIZAR_POKER_SCHEDULER TRUE

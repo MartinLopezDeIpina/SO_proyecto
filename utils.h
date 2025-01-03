@@ -14,5 +14,4 @@ int comparar_enteros(const void *a, const void *b);
 float float_aleatorio_entre_dos_numeros(float min, float max);
 int int_aleatorio_entre_dos_numeros(int min, int max);
 Boolean evento_con_probabilidad(float probabilidad);
-
-inline int contar_lineas_fichero(FILE *file);
+void contar_instrucciones_code_y_data(FILE* file, int* num_instrucciones_code, int* num_instrucciones_data);

@@ -25,7 +25,7 @@ typedef struct {
 }MMU;
 
 void init_mmu(MMU* mmu, PhysicalMemory* pm);
-uint32_t* get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t* PTBR, int pid_proceso, uint32_t* dir_log_text, uint32_t* dir_logica_data);
+uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t* PTBR, int pid_proceso, uint32_t* dir_log_text, uint32_t* dir_logica_data);
 void liberar_entradas_proceso(MMU* mmu, int pid_proceso);
 uint32_t get_dir_marco(MMU* mmu, int pid_proceso, uint32_t dir_pag_lógica);
 int get_afinidad_mmu_tlb_con_proceso(MMU* mmy, int pid);

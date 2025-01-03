@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "Boolean.h"
 
@@ -27,25 +28,29 @@ Boolean evento_con_probabilidad(float probabilidad) {
     return (numero_aleatorio < probabilidad) ? TRUE : FALSE;
 }
 
-int contar_lineas_fichero(FILE* file) {
-    int num_lineas = 0;
-    char c;
+void contar_instrucciones_code_y_data(FILE* file, int* num_instrucciones_code, int* num_instrucciones_data) {
+    *num_instrucciones_code = 0;
+    *num_instrucciones_data = 0;
+    char linea[16];
 
-    // Guardar la posición actual
-    long pos_inicial = ftell(file);
+    // Ignorar las dos primeras líneas (.text y .data)
+    fgets(linea, sizeof(linea), file);
+    fgets(linea, sizeof(linea), file);
 
-    // Ir al inicio del archivo
-    fseek(file, 0, SEEK_SET);
-
-    // Contar líneas
-    while ((c = fgetc(file)) != EOF) {
-        if (c == '\n') {
-            num_lineas++;
+    // Contar líneas código -> hasta encontrar F0000000 (instrucción exit)
+    while (fgets(linea, sizeof(linea), file) != NULL) {
+        if (strncmp(linea, "F", 1) == 0) {  // Si la línea empieza con F
+            (*num_instrucciones_code)++;
+            break;
         }
+        (*num_instrucciones_code)++;
     }
 
-    // Volver a la posición original
-    fseek(file, pos_inicial, SEEK_SET);
+    // Contar líneas de datos
+    while (fgets(linea, sizeof(linea), file) != NULL) {
+        (*num_instrucciones_data)++;
+    }
 
-    return num_lineas;
+    //volver al inicio del archivo
+    fseek(file, 0, SEEK_SET);
 }

@@ -26,6 +26,17 @@ void init_estado_ejecucion_proceso(EstadoEjecucionProceso* estado_ejecucion_proc
     }
 }
 
+void init_mm(mm* mm_instancia) {
+    mm_instancia->code = (uint32_t*)malloc(sizeof(uint32_t));
+    mm_instancia->data = (uint32_t*)malloc(sizeof(uint32_t));
+    mm_instancia->pgb = (uint32_t*)malloc(sizeof(uint32_t));
+
+    *(mm_instancia->code) = 0;
+    *(mm_instancia->data) = 0;
+    *(mm_instancia->pgb) = 0;
+}
+
+
 void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> pid = pid;
     pcb -> prioridad = prioridad;
@@ -40,6 +51,7 @@ void init_pcb(PCB* pcb, int pid, int prioridad) {
     pcb -> cartas = (Carta*)malloc(sizeof(Carta) * prioridad);
 
     mm* mm_pcb = (mm*)malloc(sizeof(mm));
+    init_mm(mm_pcb);
     pcb->mm_pcb = mm_pcb;
 
     EstadoEjecucionProceso* estado_ejecucion_proceso = (EstadoEjecucionProceso*)malloc(sizeof(EstadoEjecucionProceso));

@@ -19,7 +19,7 @@ uint32_t get_dir_pag_libre_pm(PhysicalMemory* pm);
 void escribir_direccion_en_tabla_paginas(PhysicalMemory* pm, uint32_t dir_pag_tabla_paginas, uint32_t dir_pag);
 void escribir_valor_en_direccion(PhysicalMemory* pm, uint32_t dir, uint32_t valor);
 uint32_t get_valor_en_puntero_a_direccion(PhysicalMemory* pm, uint32_t* puntero_a_direccion);
-uint32_t* get_puntero_a_direccion_memoria(PhysicalMemory* pm, uint32_t dir);
+uint32_t get_valor_en_direccion_de_memoria(PhysicalMemory* pm, uint32_t dir);
 void escribir_valor_en_puntero_a_direccion(PhysicalMemory* pm, uint32_t* puntero_a_direccion, uint32_t valor);
 void liberar_memoria_paginas(PhysicalMemory* pm, uint32_t dir_fisica_marco, int num_pags);
 

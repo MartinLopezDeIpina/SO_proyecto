@@ -20,4 +20,7 @@ void print_ronda_apuestas(Boolean preflop);
 void print_eligiendo_ganador(Partida* partida);
 void print_ganador(Partida* partida, PCB* jugador);
 
+void print_proceso_num_instrucciones(int num_instrucciones_codigo, int num_instrucciones_data, int pid_prceso);
+void print_direccion_escrita(uint32_t dir, uint32_t valor);
+
 #endif //DEBUGPRINTS_H

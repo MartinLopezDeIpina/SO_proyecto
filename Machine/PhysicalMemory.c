@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <pthread.h>
 
+#include "../DebugPrints.h"
+
 void init_physical_memory(PhysicalMemory* pm) {
     pm->memoria = (uint32_t*)malloc(NUM_DIRECCIONES * sizeof(uint32_t));
     for (int i = 0; i < NUM_DIRECCIONES; i++) {
@@ -54,7 +56,7 @@ void escribir_direccion_en_tabla_paginas(PhysicalMemory* pm, uint32_t dir_pag_ta
     pthread_mutex_lock(&pm->mutex);
 
     pm -> memoria[dir_pag_tabla_paginas] = (uint32_t)dir_pag;
-    printf("** En la dirección %d se ha escrito el valor %d **\n", dir_pag_tabla_paginas, pm->memoria[dir_pag_tabla_paginas]);
+    print_direccion_escrita(dir_pag_tabla_paginas, pm->memoria[dir_pag_tabla_paginas]);
 
    pthread_mutex_unlock(&pm->mutex);
 }
@@ -72,21 +74,23 @@ void escribir_valor_en_direccion(PhysicalMemory* pm, uint32_t dir, uint32_t valo
     pthread_mutex_lock(&pm->mutex);
 
     pm -> memoria[dir] = valor;
-    printf("En la dirección %d se ha escrito el valor %X\n", dir, pm->memoria[dir]);
+
+    print_direccion_escrita(dir, pm->memoria[dir]);
 
     pthread_mutex_unlock(&pm->mutex);
 }
 
 /*
- * Dada una dirección de memoria, devuelve un puntero al array de memoria usando la dirección comom índice.
+ * Dada una dirección de memoria, devuelve el valor en memoria usando la dirección como índice.
  */
-uint32_t* get_puntero_a_direccion_memoria(PhysicalMemory* pm, uint32_t dir) {
+uint32_t get_valor_en_direccion_de_memoria(PhysicalMemory* pm, uint32_t dir) {
     pthread_mutex_lock(&pm->mutex);
 
-    uint32_t* puntero = &(pm->memoria[dir]);
+    uint32_t valor = pm->memoria[dir];
 
     pthread_mutex_unlock(&pm->mutex);
-    return puntero;
+
+    return valor;
 }
 
 // usar la función para lockear el mutex en lugar de acceder directamente al puntero.

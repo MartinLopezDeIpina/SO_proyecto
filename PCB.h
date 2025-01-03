@@ -29,6 +29,8 @@ typedef struct {
   uint32_t* pgb;
 }mm;
 
+void init_mm(mm* mm);
+
 typedef struct {
     int registros[16];
     int PC;

@@ -12,8 +12,10 @@
 
 // Sacar la dirección física usando la MMU en el hilo hardware.
 uint32_t get_instruccion_proceso(HiloHardware* hilo) {
-    uint32_t* dir_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, hilo->PC,hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
-    return *dir_fisica;
+    uint32_t dir_logica = hilo->PC;
+    uint32_t dir_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, hilo->PC,hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
+    uint32_t instruccion = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica);
+    return instruccion;
 }
 
 uint32_t get_registro(HiloHardware* hilo, int num_registro) {
@@ -28,8 +30,7 @@ void ejecutar_funcion_ld(HiloHardware* hilo, uint32_t instruccion) {
     int num_registro = (instruccion & 0x0F000000) >> 24;
     uint32_t dir_memoria = instruccion & 0x00FFFFFF;
 
-    uint32_t* puntero_memoria_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
-    uint32_t valor = get_valor_en_puntero_a_direccion(hilo->mmu->pm, puntero_memoria_fisica);
+    uint32_t valor = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
 
     hilo->registros[num_registro] = valor;
 }
@@ -48,11 +49,11 @@ void ejecutar_funcion_st(HiloHardware* hilo, uint32_t instruccion) {
     uint32_t num_registro = (instruccion & 0x0F000000) >> 24;
     uint32_t dir_memoria = instruccion & 0x00FFFFFF;
 
-    uint32_t* puntero_memoria_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
+    uint32_t dir_fisica = get_dir_fisica_para_dir_logica(hilo->mmu, dir_memoria, hilo->PTBR, hilo->current_process->pid, hilo->current_process->mm_pcb->code, hilo->current_process->mm_pcb->data);
     uint32_t valor = hilo->registros[num_registro];
 
-    // usar la función para lockear el mutex en lugar de acceder directamente al puntero.
-    escribir_valor_en_puntero_a_direccion(hilo->mmu->pm, puntero_memoria_fisica, valor);
+    // usar la función para lockear el mutex en lugar de acceder directamente al memoria.
+    escribir_valor_en_direccion(hilo->mmu->pm, dir_fisica, valor);
 }
 
 void limpiar_registros_proceso(HiloHardware* hilo, int pid) {
@@ -98,14 +99,19 @@ void ejecutar_funcion_instruccion(HiloHardware* hilo, uint32_t instruccion) {
     switch(primer_digito) {
         case(0):
             ejecutar_funcion_ld(hilo, instruccion);
+            break;
         case(1):
             ejecutar_funcion_st(hilo, instruccion);
+            break;
         case(2):
             ejecutar_funcion_add(hilo, instruccion);
+            break;
         case(0xF):
             ejecutar_funcion_exit(hilo, instruccion);
+            break;
         default:
             printf("error: instrucción %X no válida\n", primer_digito);
+            break;
     }
 }
 

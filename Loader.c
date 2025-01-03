@@ -44,12 +44,12 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
 
     // Leer dirección de text
     if (fgets(linea_header, sizeof(linea_header), file) != NULL) {
-        sscanf(linea_header, ".text %d", &text_addr);
+        sscanf(linea_header, ".text %x", &text_addr);
     }
 
     // Leer dirección de data
     if (fgets(linea_header, sizeof(linea_header), file) != NULL) {
-        sscanf(linea_header, ".data %d", &data_addr);
+        sscanf(linea_header, ".data %x", &data_addr);
     }
 
     int num_direcciones_code = data_addr - text_addr;

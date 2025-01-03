@@ -102,7 +102,7 @@ void liberar_entradas_proceso(MMU* mmu, int pid_proceso) {
 //todo: falla algo de lógica porque resuelve mal las direcciones -> devuelve dirección física donde no hay ningún valor válido, devuelve entre instrucciones cíóido y datos en lugar de la primera instrucción de código
 uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t* PTBR, int pid_proceso, uint32_t* dir_log_text, uint32_t* dir_logica_data) {
 
-    bool es_dir_text = dir_logica < *dir_log_text;
+    bool es_dir_text = dir_logica < *dir_logica_data;
 
     int dir_logica_pagina;
     int indice_pag_data;

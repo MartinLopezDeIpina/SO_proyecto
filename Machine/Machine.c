@@ -8,17 +8,31 @@
 #include "../IComponenteTemporizable.h"
 #include "Machine.h"
 
-void funcion_machine(Machine* machine) {
+#include <string.h>
+
+#include "../DebugPrints.h"
+
+char* funcion_machine(Machine* machine) {
     printf("ejeutando funcion machine\n");
 
+    // Ir acumulando el print de todos los cores para printearlo sin interrupciones de otros prints
+    char* resultado_print = malloc(10000);
+    resultado_print[0] = '\0';
+
     for (int i = 0; i < machine->num_CPUs; i++) {
-        notificar_tick_clock_CPU(&machine->cpus[i]);
+        char* resultado_cpu = notificar_tick_clock_CPU(&machine->cpus[i]);
+        strcat(resultado_print, resultado_cpu);
+        free(resultado_cpu);
     }
+    return resultado_print;
 }
 
 void ejecutar_funcion_temporizador_machine(void* self) {
     Machine* machine = (Machine*)self;
-    funcion_machine(machine);
+
+    char* estado_completo = funcion_machine(machine);
+    printf("%s", estado_completo);
+    free(estado_completo);
 }
 
 void init_machine(Machine* machine, PhysicalMemory* pm, int num_CPUs, int num_cores_CPU, int num_threads_core){

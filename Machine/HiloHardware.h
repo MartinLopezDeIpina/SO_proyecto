@@ -36,7 +36,7 @@ void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo, PhysicalMemory
 void ejecutar_instruccion(HiloHardware* hilo);
 Boolean hilo_esta_ocioso(HiloHardware* hilo);
 Boolean hilo_esta_vacio(HiloHardware* hilo);
-void printear_instrucciones_ejecutadas_hilo(HiloHardware* hilo);
+char* printear_instrucciones_ejecutadas_hilo(HiloHardware* hilo);
 void notificar_tick_clock_hilo(HiloHardware* hilo);
 void vaciar_hilo(HiloHardware* hilo);
 void vaciar_hilo_y_set_estado(HiloHardware* hilo, EstadoProceso estado);

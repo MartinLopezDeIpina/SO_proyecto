@@ -6,6 +6,7 @@
 
 #include <pthread.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "../Boolean.h"
 #include "PhysicalMemory.h"
@@ -226,14 +227,20 @@ void init_hilo_hardware(HiloHardware* hilo_hardware, int id_hilo, PhysicalMemory
     pthread_create(&hilo_hardware->thread, NULL, funcion_hilo_hardware, (void*)hilo_hardware);
 }
 
-void printear_instrucciones_ejecutadas_hilo(HiloHardware* hilo) {
-    printf("Hilo %d: ", hilo->id_hilo);
-   if (hilo_esta_ocioso(hilo)) {
-       printf("Ocioso\n");
-   }else {
-       printear_instrucciones_ejecutadas(hilo->current_process);
-   }
+char* printear_instrucciones_ejecutadas_hilo(HiloHardware* hilo) {
+    char* resultado = malloc(500);
+    sprintf(resultado, "Hilo %d: ", hilo->id_hilo);
+
+    if (hilo_esta_ocioso(hilo)) {
+        strcat(resultado, "Ocioso\n");
+    } else {
+        char* estado_proceso = printear_instrucciones_ejecutadas(hilo->current_process);
+        strcat(resultado, estado_proceso);
+        free(estado_proceso);
+    }
+    return resultado;
 }
+
 
 Boolean proceso_hilo_saldo_ejecucion_insuficiente(HiloHardware* hilo) {
     pthread_mutex_lock(&hilo->mutex_acceso_hilo);

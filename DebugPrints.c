@@ -8,6 +8,7 @@
 
 #include "Poker/Partida.h"
 #include "Poker/EvaluadorManos.h"
+#include "DebugPrints.h"
 
 static inline void debug_printf(const char* format, Boolean booleano, ...) {
     if (booleano == TRUE) {

@@ -116,7 +116,7 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
 
 void generar_proceso(Loader* loader) {
     int pid_proceso = loader -> ultimo_pid;
-    if (pid_proceso > MAX_PROCESOS){
+    if (pid_proceso >= MAX_PROCESOS){
         return;
     }
 

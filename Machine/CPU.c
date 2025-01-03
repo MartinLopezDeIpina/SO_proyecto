@@ -7,6 +7,8 @@
 
 #include "CPU.h"
 
+#include <string.h>
+
 void init_CPU(int id_cpu, CPU* cpu, PhysicalMemory* pm, int num_cores, int num_threads_core) {
     cpu -> id_cpu = id_cpu;
     cpu -> num_cores = num_cores;
@@ -19,10 +21,16 @@ void init_CPU(int id_cpu, CPU* cpu, PhysicalMemory* pm, int num_cores, int num_t
     }
 }
 
-void notificar_tick_clock_CPU(CPU* cpu) {
+char* notificar_tick_clock_CPU(CPU* cpu) {
+    char* resultado = malloc(5000);
+    resultado[0] = '\0';
+
     for (int i = 0; i < cpu->num_cores; i++) {
-        notificar_tick_clock_core(&cpu->cores[i]);
+        char* estado_core = notificar_tick_clock_core(&cpu->cores[i]);
+        strcat(resultado, estado_core);
+        free(estado_core);
     }
+    return resultado;
 }
 
 int get_cores_ociosos_CPU(CPU* cpu, int* array_ids, int index_actual) {

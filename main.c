@@ -10,7 +10,7 @@
 #include "ProcessQueue.h"
 #include "Scheduler.h"
 #include "Machine/Machine.h"
-#include "Poker/Baraja.h"
+#include "DebugPrints.h"
 
 
 void execute_in_different_thread(void* (*func)(void*), void* arg[]) {

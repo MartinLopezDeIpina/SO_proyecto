@@ -7,6 +7,7 @@
 #include "Core.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 /*
  * El objeto Core puede ser accedido por más de un hilo, por ejemplo el scheduler para asignar y quitar procesos, y el clock para notificar el tick.
@@ -14,15 +15,20 @@
  * El mutex mutex es para sincronizar la ejecución de instrucciones con los ticks del reloj.
  */
 
-void print_estado_core(Core* core) {
+char* print_estado_core(Core* core) {
+    char* resultado = malloc(1000);
     pthread_mutex_lock(&core->mutex_acceso_core);
 
-    printf("Core %d:\n", core -> id_core);
-    for(int i = 0; i < core -> num_threads_core; i++) {
-        printear_instrucciones_ejecutadas_hilo(&core -> hilos[i]);
+    sprintf(resultado, "Core %d:\n", core->id_core);
+    for(int i = 0; i < core->num_threads_core; i++) {
+        char* estado_hilo = printear_instrucciones_ejecutadas_hilo(&core->hilos[i]);
+        strcat(resultado, estado_hilo);
+        free(estado_hilo);
     }
-    printf("\n");
+    strcat(resultado, "\n");
+
     pthread_mutex_unlock(&core->mutex_acceso_core);
+    return resultado;
 }
 
 void init_hilos_hardware(int num_threads_core, HiloHardware* hilos, PhysicalMemory* pm) {
@@ -41,12 +47,19 @@ void init_core(int id_core, Core* core, PhysicalMemory* pm, int num_threads_core
     pthread_mutex_init(&core->mutex_acceso_core, NULL);
 }
 
-void notificar_tick_clock_core(Core* core) {
-    print_estado_core(core);
+char* notificar_tick_clock_core(Core* core) {
+    char* resultado = malloc(2000);
+    resultado[0] = '\0';
+
+    char* estado = print_estado_core(core);
+    strcpy(resultado, estado);
+    free(estado);
 
     for(int i = 0; i < core -> num_threads_core; i++) {
         notificar_tick_clock_hilo(&core -> hilos[i]);
     }
+
+    return resultado;
 }
 
 // el core está ocioso si al menos uno de sus hilos está ocioso -> se puede añadir un proceso más la core

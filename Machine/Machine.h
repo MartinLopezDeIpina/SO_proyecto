@@ -14,7 +14,7 @@ typedef struct {
     CPU* cpus;
 }Machine;
 
-void funcion_machine(Machine* machine);
+char* funcion_machine(Machine* machine);
 void ejecutar_funcion_temporizador_machine(void* self);
 void init_machine(Machine* machine, PhysicalMemory* pm, int num_CPUs, int num_cores_CPU, int num_threads_core);
 int vaciar_cores_terminados(Machine* machine, int* pid_procesos_terminados);

@@ -6,7 +6,6 @@
 #define DEBUGPRINTS_H
 #include "Poker/Partida.h"
 
-
 void print_ronda_apuestas_preflop();
 void print_ronda_apuestas_flop();
 void print_jugador_apostando(PCB* jugador);

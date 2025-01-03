@@ -20,7 +20,7 @@ typedef struct {
 
 void init_core(int id_core, Core* core, PhysicalMemory* pm, int num_threads_core);
 
-void notificar_tick_clock_core(Core* core);
+char* notificar_tick_clock_core(Core* core);
 
 void asignar_proceso_a_core(Core* core, PCB* pcb);
 

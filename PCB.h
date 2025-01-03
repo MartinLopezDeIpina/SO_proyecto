@@ -71,7 +71,7 @@ PCBArray* shallow_copy_pcb_array(PCBArray* original);
 
 void init_pcb(PCB* pcb, int pid, int prioridad);
 void avanzar_ejecucion_proceso(PCB* pcb);
-void printear_instrucciones_ejecutadas(PCB* pcb);
+char* printear_instrucciones_ejecutadas(PCB* pcb);
 
 Boolean proceso_esta_en_estado(PCB* pcb, EstadoProceso estado);
 Boolean proceso_esta_listo(PCB* pcb);

@@ -8,6 +8,7 @@
 #include "PCB.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "utils.h"
 #include "Poker/PokerUtils.h"
@@ -15,6 +16,7 @@
 #include "Boolean.h"
 #include "DebugPrints.h"
 #include "globals.h"
+#include "Machine/HiloHardware.h"
 #include "Machine/MMU.h"
 
 
@@ -150,27 +152,33 @@ void set_estado_proceso_terminado(PCB* pcb) {
     set_estado_proceso(pcb, TERMINADO);
 }
 
-void printear_instrucciones_ejecutadas(PCB* pcb) {
-    pthread_mutex_lock(&pcb -> mutex);
+char* printear_instrucciones_ejecutadas(PCB* pcb) {
+    char* resultado = malloc(200);
+    pthread_mutex_lock(&pcb->mutex);
 
-    int instruccion_actual = pcb -> num_instruccion_actual;
-    int num_instrucciones = pcb -> num_instrucciones;
+    int instruccion_actual = pcb->num_instruccion_actual;
+    int num_instrucciones = pcb->num_instrucciones;
 
-    printf("Proceso %d [", pcb -> pid);
+    sprintf(resultado, "Proceso %d [", pcb->pid);
+
+    char temp[200];
+    temp[0] = '\0';
 
     for (int i = 0; i < instruccion_actual; i++) {
-        printf("*");
+        strcat(temp, "*");
     }
-
     for (int i = instruccion_actual; i < num_instrucciones; i++) {
-        printf(" ");
+        strcat(temp, " ");
     }
 
-    printf("] %d/%d", instruccion_actual, num_instrucciones);
+    char final[100];
+    sprintf(final, "] %d/%d %d$\n", instruccion_actual, num_instrucciones, pcb->saldo_ejecucion);
 
-    printf(" %d$\n", pcb -> saldo_ejecucion);
+    strcat(resultado, temp);
+    strcat(resultado, final);
 
-    pthread_mutex_unlock(&pcb -> mutex);
+    pthread_mutex_unlock(&pcb->mutex);
+    return resultado;
 }
 
 void incrementar_saldo(PCB* pcb, int cantidad) {

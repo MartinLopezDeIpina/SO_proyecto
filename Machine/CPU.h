@@ -21,5 +21,7 @@ int vaciar_cpus_terminados(CPU* cpu, int* pid_procesos_terminados, int index_act
 void vaciar_cpus_sin_saldo_suficiente(CPU* cpu);
 int get_cores_ociosos_CPU(CPU* cpu, int* array_ids, int index_actual);
 void asignar_proceso_a_core_CPU(CPU* cpu, int id_core, PCB* pcb);
+int get_num_hilos_ociosos_cpu(CPU* cpu);
+int get_id_primer_core_ocioso_cpu(CPU* cpu);
 
 

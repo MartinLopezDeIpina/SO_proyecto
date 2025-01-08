@@ -33,13 +33,10 @@ char* notificar_tick_clock_CPU(CPU* cpu) {
     return resultado;
 }
 
-int get_cores_ociosos_CPU(CPU* cpu, int* array_ids, int index_actual) {
+int get_num_hilos_ociosos_cpu(CPU* cpu) {
    int cont = 0;
    for (int i = 0; i < cpu->num_cores; i++) {
-       if (core_esta_ocioso(&cpu -> cores[i]) == TRUE) {
-           array_ids[index_actual + cont] = cpu->cores[i].id_core;
-           cont++;
-       }
+       cont += get_num_hilos_ociosos_core(&cpu->cores[i]);
    }
    return cont;
 }
@@ -64,4 +61,13 @@ void asignar_proceso_a_core_CPU(CPU* cpu, int id_core, PCB* pcb) {
             break;
         }
     }
+}
+
+int get_id_primer_core_ocioso_cpu(CPU* cpu) {
+    for (int i = 0; i < cpu->num_cores; i++) {
+        if (core_esta_ocioso(&cpu->cores[i])) {
+            return cpu->cores[i].id_core;
+        }
+    }
+    return -1;
 }

@@ -76,6 +76,16 @@ Boolean core_esta_ocioso(Core* core) {
     return ocioso;
 }
 
+int get_num_hilos_ociosos_core(Core* core) {
+    int cuenta = 0;
+    for(int i = 0; i < core -> num_threads_core; i++) {
+        if(hilo_esta_ocioso(&core -> hilos[i])) {
+            cuenta++;
+        }
+    }
+    return cuenta;
+}
+
 void vaciar_hilos_sin_saldo_suficiente(Core* core) {
     for(int i = 0; i < core -> num_threads_core; i++) {
         if (hilo_esta_vacio(&core->hilos[i]) == FALSE && proceso_hilo_saldo_ejecucion_insuficiente(&core->hilos[i]) == TRUE) {

@@ -22,5 +22,7 @@ void vaciar_cores_sin_saldo_suficiente(Machine* machine);
 void asignar_proceso_a_machine(Machine* machine, int id_core, PCB* pcb);
 int get_ids_cores_ociosos(Machine* machine, int* ids_cores_ociosos);
 int get_num_cores_machine(Machine* machine);
+int get_num_hilos_ociosos_machine(Machine* machine);
+int get_id_primer_core_ocioso_machine(Machine* machine);
 
 #endif //MACHINE_H

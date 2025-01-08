@@ -48,11 +48,11 @@ void init_machine(Machine* machine, PhysicalMemory* pm, int num_CPUs, int num_co
     }
 }
 
-int get_ids_cores_ociosos(Machine* machine, int* ids_cores_ociosos) {
+int get_num_hilos_ociosos_machine(Machine* machine) {
     int cuenta_total = 0;
 
     for (int i = 0; i < machine->num_CPUs; i++) {
-        cuenta_total += get_cores_ociosos_CPU(&machine->cpus[i], ids_cores_ociosos, cuenta_total);
+        cuenta_total += get_num_hilos_ociosos_cpu(&machine->cpus[i]);
     }
 
     return cuenta_total;
@@ -80,3 +80,14 @@ void asignar_proceso_a_machine(Machine* machine, int id_core, PCB* pcb) {
     int id_cpu = id_core / machine->num_cores_CPU;
     asignar_proceso_a_core_CPU(&machine->cpus[id_cpu], id_core, pcb);
 }
+
+int get_id_primer_core_ocioso_machine(Machine* machine) {
+   for (int i = 0; i < machine->num_CPUs; i++) {
+       if (get_num_hilos_ociosos_cpu(&machine->cpus[i]) > 0){
+          return get_id_primer_core_ocioso_cpu(&machine->cpus[i]);
+       }
+   }
+    return -1;
+}
+
+

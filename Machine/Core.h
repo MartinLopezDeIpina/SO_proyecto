@@ -26,5 +26,6 @@ void asignar_proceso_a_core(Core* core, PCB* pcb);
 
 int vaciar_hilos_terminados_core(Core* core, int* pid_procesos_terminados, int index_actual);
 void vaciar_hilos_sin_saldo_suficiente(Core* core);
+int get_num_hilos_ociosos_core(Core* core);
 
 Boolean core_esta_ocioso(Core* core);

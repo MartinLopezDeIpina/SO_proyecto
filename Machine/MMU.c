@@ -128,9 +128,9 @@ uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t*
 
     uint32_t dir_fisica_marco = get_dir_marco(mmu, pid_proceso, dir_logica_pagina);
 
-    bool fallo_pagina = dir_fisica_marco == -1;
+    bool fallo_tlb = dir_fisica_marco == -1;
     // Acceder a la tabla de páginas para obtener la dirección física de la página.
-    if(fallo_pagina) {
+    if(fallo_tlb) {
         // dir_logica_pagina debe multiplicarse por el número de bytes en una dirección porque es lo que ocupa cada entrada en la tlb
         uint32_t dir_tabla_paginas_marco = *PTBR + (dir_logica_pagina * NUM_BYTES_DIRECCION);
         dir_fisica_marco = get_valor_en_direccion_de_memoria(mmu->pm, dir_tabla_paginas_marco, TRUE);

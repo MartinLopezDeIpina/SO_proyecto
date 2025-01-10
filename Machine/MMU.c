@@ -105,9 +105,9 @@ void liberar_entradas_proceso(MMU* mmu, int pid_proceso) {
  * Si la dirección lógica del marco no está en la TLB, se consulta la tabla de páginas.
  */
 uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t* PTBR, int pid_proceso, uint32_t* dir_log_text, uint32_t* dir_logica_data) {
-    // Si la dirección lógica no está alineada a 4 bytes printear un error.
-    if (dir_logica % 4 != 0) {
-        print_error_direccion_no_alineada(dir_logica);
+    // Si la dirección lógica no está alineada al número de bytes por instrucción del proceso, entonces hay algún problema
+    if (dir_logica % 4 != 0){
+        print_error_direccion_logica_no_alineada(dir_logica);
     }
 
     bool es_dir_text = dir_logica < *dir_logica_data;
@@ -131,9 +131,9 @@ uint32_t get_dir_fisica_para_dir_logica(MMU* mmu, uint32_t dir_logica, uint32_t*
     bool fallo_pagina = dir_fisica_marco == -1;
     // Acceder a la tabla de páginas para obtener la dirección física de la página.
     if(fallo_pagina) {
-        // dir_logica_pagina debe multiplicarse por 4 porque cada entrada ocupa 4 bytes
-        uint32_t dir_tabla_paginas_marco = *PTBR + (dir_logica_pagina * 4);
-        dir_fisica_marco = get_valor_en_direccion_de_memoria(mmu->pm, dir_tabla_paginas_marco);
+        // dir_logica_pagina debe multiplicarse por el número de bytes en una dirección porque es lo que ocupa cada entrada en la tlb
+        uint32_t dir_tabla_paginas_marco = *PTBR + (dir_logica_pagina * NUM_BYTES_DIRECCION);
+        dir_fisica_marco = get_valor_en_direccion_de_memoria(mmu->pm, dir_tabla_paginas_marco, TRUE);
 
         set_entrada_TLB(mmu, pid_proceso, dir_logica_pagina, dir_fisica_marco);
     }
@@ -158,6 +158,7 @@ int get_afinidad_mmu_tlb_con_proceso(MMU* mmu, int pid) {
             cuenta++;
         }
     }
+
     return cuenta;
 }
 

@@ -103,7 +103,10 @@ void print_direccion_escrita(uint32_t dir, uint32_t valor) {
 }
 
 void print_error_direccion_no_alineada(uint32_t dir) {
-    debug_printf("Error: la dirección %X no está alineada a 4 bytes\n", DEBUG_DIRS_MEMORIA, dir);
+    debug_printf("Error: la dirección física %X no está alineada a %d bytes\n", DEBUG_DIRS_MEMORIA, dir, NUM_BYTES_DIRECCION);
+}
+void print_error_direccion_logica_no_alineada(uint32_t dir) {
+    debug_printf("Error: la dirección lógica %X no está alineada a 4 bytes\n", DEBUG_DIRS_MEMORIA, dir);
 }
 
 void print_ejecutando_instruccion(int pid, uint32_t instruccion) {

@@ -22,7 +22,7 @@ uint32_t get_instruccion_proceso(HiloHardware* hilo) {
         hilo->current_process->mm_pcb->code,
         hilo->current_process->mm_pcb->data
         );
-    uint32_t instruccion = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica);
+    uint32_t instruccion = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica, FALSE);
     return instruccion;
 }
 
@@ -47,7 +47,7 @@ void ejecutar_funcion_ld(HiloHardware* hilo, uint32_t instruccion) {
         hilo->current_process->mm_pcb->data
         );
 
-    uint32_t valor = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica);
+    uint32_t valor = get_valor_en_direccion_de_memoria(hilo->mmu->pm, dir_fisica, FALSE);
 
     set_registro(hilo, num_registro, valor);
 
@@ -82,7 +82,7 @@ void ejecutar_funcion_st(HiloHardware* hilo, uint32_t instruccion) {
     uint32_t valor = get_registro(hilo, num_registro);
 
     // usar la función para lockear el mutex en lugar de acceder directamente al memoria.
-    escribir_valor_en_direccion(hilo->mmu->pm, dir_fisica, valor);
+    escribir_valor_en_direccion(hilo->mmu->pm, dir_fisica, valor, FALSE);
 
     print_instruccion_st(hilo->current_process->pid, dir_fisica, valor);
 }
@@ -153,6 +153,7 @@ void ejecutar_instruccion(HiloHardware* hilo) {
     uint32_t instruccion = get_instruccion_proceso(hilo);
     print_ejecutando_instruccion(hilo->current_process->pid, instruccion);
     ejecutar_funcion_instruccion(hilo, instruccion);
+    // avanzar hacia la siguiente instrucciónd de 4 bytes
     hilo->PC += 4;
     avanzar_ejecucion_proceso(hilo -> current_process);
     pthread_mutex_unlock(&hilo->mutex_acceso_hilo);

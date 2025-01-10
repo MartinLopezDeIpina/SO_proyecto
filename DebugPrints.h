@@ -27,5 +27,6 @@ void print_instruccion_ld(int pid, int num_registro, uint32_t valor);
 void print_instruccion_st(int pid, int num_registro, uint32_t valor);
 void print_instruccion_add(int pid, uint32_t valor1, uint32_t valor2, uint32_t resultado);
 void print_instruccion_exit(int pid);
+void print_error_direccion_logica_no_alineada(uint32_t dir);
 
 #endif //DEBUGPRINTS_H

@@ -70,7 +70,7 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     *(pcb->mm_pcb->pgb) = dir_primera_entrada_tabla_paginas;
 
     int dir_logica_actual = text_addr;
-    uint32_t dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, *pcb->mm_pcb->pgb);
+    uint32_t dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, *pcb->mm_pcb->pgb, TRUE);
     int indice_pagina_actual = 0;
 
     // Leer y escribir instrucciones de text
@@ -78,12 +78,12 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         //Si se llega al final de la página, se pasa a la siguiente
         if(dir_logica_actual >= text_addr + TAMANIO_PAGINA * (indice_pagina_actual + 1)) {
             indice_pagina_actual++;
-            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual * 4);
-            dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas);
+            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual * NUM_BYTES_DIRECCION);
+            dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas, TRUE);
         }
         uint32_t valor;
         fscanf(file, "%X", &valor);
-        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
+        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor, FALSE);
         // Ir de palabra en palabra
         dir_logica_actual += 4;
         dir_fisica_actual += 4;
@@ -91,8 +91,8 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
     // Pasar a la siguiente página porque text y data están separados
     indice_pagina_actual++;
     int indice_pagina_codigo_actual = 0;
-    int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual*4);
-    dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas);
+    int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual*NUM_BYTES_DIRECCION);
+    dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas, TRUE);
 
     for(int i = 0; i < *num_instrucciones_data; i++) {
         uint32_t valor;
@@ -102,11 +102,11 @@ void escribir_instrucciones_proceso_en_memoria_y_asignar_entradas_paginas(Loader
         if(dir_logica_actual >= data_addr + TAMANIO_PAGINA * (indice_pagina_codigo_actual + 1)) {
             indice_pagina_actual++;
             indice_pagina_codigo_actual++;
-            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual*4);
-            dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas);
+            int indice_tabla_paginas = dir_primera_entrada_tabla_paginas + (indice_pagina_actual*NUM_BYTES_DIRECCION);
+            dir_fisica_actual = get_valor_en_direccion_de_memoria(loader->pm, indice_tabla_paginas, TRUE);
         }
 
-        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor);
+        escribir_valor_en_direccion(loader->pm, dir_fisica_actual, valor, FALSE);
         dir_logica_actual+=4;
         dir_fisica_actual+=4;
     }
